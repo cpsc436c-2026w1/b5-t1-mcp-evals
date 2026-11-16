@@ -183,12 +183,12 @@ failed case to need its own name.
    You should see a browser address in the terminal. Open that address in a browser tab. You should see either the
    run's page or a table of runs.
 2. In the browser tab you opened at that address, find the starting prompt's run. If the tab opened directly on a
-   run's page, that is the run. If you see a table of runs, click the row with TASK ARGS
-   `split="test", prompt="prompt.txt"` and the latest COMPLETED time. Do not look at the SCORE column yet. You
+   run's page, that is the run. If you see a table of runs, do not look at the SCORE
+   column yet. Click the row with TASK ARGS `split="test", prompt="prompt.txt"` and the latest COMPLETED time. You
    should see the run's page. On that page, do not look at the `Scorer`/`accuracy` box at the top right yet. In the
    SAMPLES tab, click each row whose SQL_CHECK is 0. You should see the case's page. On the case's page, read INPUT
-   and ANSWER. Open SCORING and read EXPLANATION in the `sql_check` row. Use the run name at the top left to return
-   to the run's page.
+   and ANSWER. Open SCORING and read EXPLANATION in the `sql_check` row. To return to the run's page, click the link
+   ending in `.eval` at the top left.
 3. In your notes, fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
    failed case.
 
@@ -311,8 +311,8 @@ you expect the same or fewer failures.
    terminal. Open that address in a browser tab. You should see a table of runs. Click the row with TASK
    `sql_test_prompt_optimized`. You should see the new prompt's run page. In the SAMPLES tab, click each row whose
    SQL_CHECK is 0. You should see that case's page. On each case's page, read INPUT and ANSWER. Open SCORING and
-   read EXPLANATION in the `sql_check` row. You should see the checker's explanation for that case. Use the run name
-   at the top left to return to the run's page.
+   read EXPLANATION in the `sql_check` row. You should see the checker's explanation for that case. To return to the run's page, click the link
+   ending in `.eval` at the top left.
    Compare the remaining failures in the browser with the names in your Step 2 table in your notes. Does each
    remaining failure have a name in your table? If none fail, which of your names did the new prompt fix?
 3. Compare the score in the `Scorer`/`accuracy` box on the new run's page with the Step 2 score in your notes or
