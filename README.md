@@ -1,19 +1,22 @@
-# CPSC 436C 2026W1 tutorial B5T1: course MCP, model gateway, evals
+# CPSC 436C B5T1: course MCP and prompt evaluation
 
-You will connect your coding assistant to the course MCP server with your own token, test it on two questions, and
-use it to check the numbers and AWS claims in your project proposal. Then you will call the course model gateway with
-the same token, evaluate a prompt on held-out questions, read the failures, improve the prompt with GEPA, and evaluate
-it again.
+Connect a coding assistant to the course MCP server and use course files to check your project proposal. Then call
+the course LLM gateway with the same token, evaluate a prompt on held-out cases with Inspect, read and name the
+failures, let GEPA rewrite the prompt, evaluate again and price the session in CAD.
 
 | Part | Folder | Time |
 |---|---|---|
-| Course MCP: connect, test, check your proposal | [`mcp/`](mcp/README.md) | about 20 minutes |
-| Model gateway, evals and prompt optimisation | [`evals-gepa/`](evals-gepa/README.md) | about 30 minutes |
+| A: course MCP | [`mcp/`](mcp/README.md) | about 20 minutes |
+| B: course LLM gateway and prompt evaluation | [`evals-gepa/`](evals-gepa/README.md) | about 30 minutes |
 
 ## Before you start
 
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) installed.
-- Your course MCP token, from the issue "Your course MCP tokens" in your team repository.
-- Your team repository cloned, with `docs/proposal.md`.
+- Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
+- Find your token in the issue "Your course MCP tokens" in your team repository.
+- Clone your team repository and check that it contains `docs/proposal.md`.
+- Have Claude Code or Kiro available.
 
-Start with [`mcp/README.md`](mcp/README.md), then [`evals-gepa/README.md`](evals-gepa/README.md).
+## Start
+
+Start with [part A](mcp/README.md), then continue to [part B](evals-gepa/README.md). See the
+[course tutorials page](https://cpsc436c-2026w1.github.io/lecture-reviews/tutorials.html) for the other tutorials.

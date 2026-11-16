@@ -37,8 +37,8 @@ $env:KB_MCP_TOKEN = 'paste-your-token-here'
 The commands do not print the token. The setting lasts for the current terminal window. The same token is the API
 key for the course LLM gateway in part B.
 
-If you start your assistant from an editor or an app icon (VS Code, the Kiro app), make the setting permanent,
-because such an app does not read a terminal's settings:
+If you start your assistant from an editor or an app icon (VS Code, the Kiro app), make the setting permanent.
+An app started from an icon does not read the settings of a terminal window:
 
 - macOS: add the `export` line above to `~/.zshrc` (Linux with bash: `~/.bashrc`).
 - Windows: run this once in PowerShell, with your token in place of `paste-your-token-here` and with the double
@@ -49,7 +49,8 @@ because such an app does not read a terminal's settings:
   ```
 
 The setting is then stored on your laptop only. Never commit or share that file. Close and reopen the terminal and
-the editor so they read the new setting.
+the editor so they read the new setting. If the editor still does not see the token, quit it and start it from a
+terminal where the token is set, for example `code .` for VS Code in your team repo root.
 
 In the same terminal, go to the tutorial repo root and run the check from its `mcp` folder:
 
@@ -174,7 +175,7 @@ assistant  --get_kb_doc(path)-->  course MCP server
 <details>
 <summary>Check your predictions</summary>
 
-The real path should return the document named by that path; the invented path should not return a file. L17's
+The real path should return the document named by that path. The invented path should not return a file. L17's
 server exposes `get_kb_doc` as a tool that the assistant can call, so you can check a cited path against the
 server instead of accepting the path from a reply alone.
 </details>
@@ -190,32 +191,43 @@ proposal claims  -->  assistant  --query_kb-->  course files
 
 1. Open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. If the file is missing, ask a
    TA.
-2. Predict which kinds of claim in your proposal are likely to come back "not found" or "differs". Compare the
-   claims you expect the course files to cover with claims specific to your own experiment.
+2. Predict which kinds of claim in your proposal are likely to come back "not found" or "differs". Most of your
+   section 4 numbers are your own measurements, so expect them to come back as "ours". Predict which AWS claims
+   the course files cover and which only the AWS docs do.
 3. Give your assistant the following user message:
 
    ```text
    Read docs/proposal.md and the experiment files it links in section 6. Do not edit any file. Do not open .mcp.json.
    List every number (rows, GB, time, money, counts) and every claim about how an AWS service works or what it costs.
-   For each one, search the course MCP server with query_kb. For a fact about an AWS service, also search the AWS
+   Fetch 436c-student/index.md, resources.md and prices.md with get_kb_doc first. For each claim, search the course
+   MCP server with query_kb (domain "ops", course "436c"). For a fact about an AWS service, also search the AWS
    Knowledge MCP server. Then give me one table with these columns:
-   claim | where in the proposal (section number) | source found (course file path or AWS docs URL) | agrees / differs / not found
+   claim | section | source found (course file path or AWS docs URL) | agrees / agrees if … / differs / ours / not found
+   Write "ours" for a number the team measured or estimated itself; check only that it is consistent with the other
+   numbers. Write "agrees if …" when the source adds a condition the proposal does not state.
    Put only sources you actually got from a tool call in the third column. If no tool result supports a claim,
    write "not found". After the table, list the "differs" rows again with one sentence each on what the source says.
+   Then list any two places where the proposal gives different numbers or times for the same thing, and any claim
+   that breaks a limit on resources.md (Lambda concurrency, budget, Region).
    ```
 
-4. Look for `query_kb` tool calls, a table with one row per claim, and a short list of "differs" rows. If every row
+   Most "not found" rows are numbers about your own dataset, which the course files cannot check. For DynamoDB,
+   SQS and other services the course files do not cover, the AWS Knowledge rows are the check.
+
+4. Look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and a short list of "differs"
+   rows. The assistant makes many tool calls for one proposal, so the step can take 5 to 15 minutes. If every row
    says "not found" and you saw no tool calls, the tools did not run. Return to Step 1 and check the connection.
 5. For each "differs" row, read the source yourself. Fix `docs/proposal.md`, or open an issue in your team repo
-   that quotes the claim, links the source and says why your proposal is right. A "not found" row means the course
-   files do not cover the claim; check it in the AWS docs yourself.
+   that quotes the claim, links the source and says why your proposal is right. A "not found" row about an AWS service means
+   the course files do not cover it: read the AWS page yourself. A row marked "ours" needs no source; say in the
+   proposal how you measured it.
 
 <details>
 <summary>Check your predictions</summary>
 
-Compare the "not found" and "differs" rows with the kinds of claim you predicted; your proposal may have zero rows
-of either kind. A tool result supplies a source for you to inspect, while the assistant's comparison still needs
-your review. L17 recommends MCP tool calls with audit logs; the course server logs calls by each student's named
+Compare the "ours", "not found" and "differs" rows with the kinds of claim you predicted. Your own dataset numbers
+are "ours", and your proposal may have zero "differs" rows. A tool result supplies a source for you to inspect, while the assistant's comparison still needs
+your review. L17 recommends MCP tool calls with audit logs. The course server logs calls by each student's named
 key.
 </details>
 
@@ -228,7 +240,7 @@ a tool, then compare the chat with the earlier question.
 <summary>Check your prediction</summary>
 
 Compare the tool call lines in both chats. The assistant may answer from memory without a tool call when the user
-message does not ask it to use the course MCP; a file citation is easier to check when a tool result supplies it.
+message does not ask it to use the course MCP. A file citation is easier to check when a tool result supplies it.
 </details>
 
 ## 5. Clean up
@@ -244,15 +256,15 @@ environment variable in your environment settings.
 <details>
 <summary>What you did, why, and how the same work runs outside the tutorial (open after the tutorial)</summary>
 
-- **You connected an assistant to MCP servers.** Configuration lets a host find servers; projects can version
+- **You connected an assistant to MCP servers.** Configuration lets a host find servers. Projects can version
   server configuration for their assistants.
-- **You searched course files.** `query_kb` supplied passages and paths; an assistant can use tool results to
+- **You searched course files.** `query_kb` supplied passages and paths. An assistant can use tool results to
   support a reply with sources.
-- **You checked a path.** `get_kb_doc` let you inspect a cited document; checking a source helps you find an
+- **You checked a path.** `get_kb_doc` let you inspect a cited document. Checking a source helps you find an
   invented or incorrect citation.
-- **You reviewed proposal claims.** Course files and AWS docs gave you sources to compare with claims; you still
+- **You reviewed proposal claims.** Course files and AWS docs gave you sources to compare with claims. You still
   decide whether to revise the proposal.
-- **You used a named token.** The server permits clients with tokens and logs calls by key; audit logs help
+- **You used a named token.** The server permits clients with tokens and logs calls by key. Audit logs help
   operators review tool use outside the tutorial.
 
 Reflection:
