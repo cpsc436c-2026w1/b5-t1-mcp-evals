@@ -162,14 +162,14 @@ code checks the result.
 held-out run -> failed cases -> failure names -> score
 ```
 
+You read each failed case and name what went wrong before you look at the score, so the aggregate does not steer
+what you look for. Treat the reference SQL and value as correct for this data. When the model's query differs from
+the reference SQL, name what the query did differently.
+
 </details>
 
-In the browser tab with the Inspect viewer (items 1 and 2 below), read the failed cases before you look at the
-score, so the aggregate does not direct your error analysis. Treat the reference SQL and value as correct for this data.
-When the model's query differs from the reference SQL, name what the query did differently.
-
-A failure name is short and says what to fix. After reading a failed case in the viewer, invent a name for its failure.
-Reuse that name when another case fails in the same way.
+A failure name is short and says what to fix. You give a failed case a name, and you reuse that name when another
+case fails in the same way.
 
 **Predict:** In your notes, write down whether you expect several failed cases to share a failure name or each
 failed case to need its own name.
@@ -182,14 +182,18 @@ failed case to need its own name.
 
    You should see a browser address in the terminal. Open that address in a browser tab. You should see either the
    run's page or a table of runs.
-2. In the browser tab you opened at that address, find the starting prompt's run. If the tab opened directly on a
-   run's page, that is the run. If you see a table of runs, do not look at the SCORE
-   column yet. Click the row with TASK ARGS `split="test", prompt="prompt.txt"` and the latest COMPLETED time. You
-   should see the run's page. On that page, do not look at the `Scorer`/`accuracy` box at the top right yet. In the
-   SAMPLES tab, click each row whose SQL_CHECK is 0. You should see the case's page. On the case's page, read INPUT
-   and ANSWER. Open SCORING and read EXPLANATION in the `sql_check` row. To return to the run's page, click the link
-   ending in `.eval` at the top left.
-3. In your notes, fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
+2. In that browser tab, open the starting prompt's run without reading any score:
+   - If the tab opened on a run's page, that is the run.
+   - If you see a table of runs, do not look at its SCORE column. Click the row with TASK ARGS
+     `split="test", prompt="prompt.txt"` and the latest COMPLETED time.
+
+   You should see the run's page. Do not look at the `Scorer`/`accuracy` box at its top right yet.
+3. On the run's page, in the SAMPLES tab, click a row whose SQL_CHECK is 0. You should see that case's page.
+4. On the case's page, read INPUT (the question) and ANSWER (the model's SQL). Then open SCORING and read
+   EXPLANATION in the `sql_check` row: it shows the reference SQL and value next to what the query returned.
+5. Click the link ending in `.eval` at the top left to return to the run's page. Repeat items 3 and 4 for every row
+   whose SQL_CHECK is 0.
+6. In your notes, fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
    failed case.
 
    | case id | what went wrong | name of the failure |
@@ -198,7 +202,7 @@ failed case to need its own name.
    | | | |
    | | | |
 
-4. In the browser tab, read the score in the `Scorer`/`accuracy` box at the top right of the run's page. Alternatively,
+7. In the browser tab, read the score in the `Scorer`/`accuracy` box at the top right of the run's page. Alternatively,
    read the score in the box at the end of the Step 1 terminal output. In your notes, count how many cases each
    failure name covers. Press Ctrl+C in the viewer terminal to stop the viewer.
 
@@ -271,9 +275,17 @@ expect every added rule to be true of the data.
    changes GEPA made.
 2. For each added line in the editor, write down in your notes which failure name from your Step 2 table it addresses.
    In your notes, mark any name that the new prompt does not address.
-3. In your editor, open [`data/build.py`](data/build.py), the data script. Choose one rule from
-   `prompt.optimized.txt` in the editor and check whether the script supports it. In your notes,
-   mark whether each added line is true of the data, and mark any claim you cannot verify.
+3. Choose one rule from `prompt.optimized.txt` and check it against the data. In the terminal, in the
+   `evals-gepa` folder, run this query, then change the `SELECT` to test your rule:
+
+   ```bash
+   uv run python -c "import duckdb; duckdb.sql('''
+       SELECT * FROM 'data/trips.csv' LIMIT 5
+   ''').show()"
+   ```
+
+   You should see the first rows of [`data/trips.csv`](data/trips.csv) as a table. In your notes, mark whether
+   the rule is true of the data, and mark any rule you could not check. The notebook has the same query in a cell.
 
 <details>
 <summary>Check your predictions</summary>
@@ -335,6 +347,9 @@ validation cases, so the held-out score checks questions outside that choice.
 ```text
 upper-bound estimate -> eval and GEPA records -> actual cost comparison
 ```
+
+The estimate assumes every reply uses its full token cap, so it is an upper bound. `compare.py` adds up the
+tokens the gateway reported for each call and prices them, so the recorded cost is at or below the estimate.
 
 </details>
 

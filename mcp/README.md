@@ -102,6 +102,9 @@ assistant  --reads configuration-->  MCP servers
            --tool calls----------->  course MCP server
 ```
 
+When your assistant starts, it reads the configuration file, connects to each server the file names, and asks
+each server for its list of tools. The course server needs your token; the AWS Knowledge server is public.
+
 </details>
 
 1. In your editor, open `.mcp.json.example` at the root of your team repository, the folder containing `docs/` and
@@ -152,6 +155,9 @@ user message  -->  assistant  --query_kb-->  course files
                               <--tool result--  paths and passages
 ```
 
+The assistant decides whether to call a tool. When it calls `query_kb`, the course server searches the course
+files and returns file paths and passages, and the assistant writes its reply from them.
+
 </details>
 
 1. **Predict:** using the tool list on the `✓ tools:` line the setup check printed in the terminal in the `mcp`
@@ -195,6 +201,9 @@ assistant  --get_kb_doc(path)-->  course MCP server
            <--document or error--  course MCP server
 ```
 
+`get_kb_doc` fetches one whole file by its path. A path that exists returns the document and a made-up path
+returns an error, so a cited path you can open is one the tool really returned.
+
 </details>
 
 1. In your assistant's chat, choose a file path named in Step 2. Predict what `get_kb_doc` will return for that path
@@ -224,6 +233,9 @@ proposal claims  -->  assistant  --query_kb-->  course files
                                 <--tool results--  sources
                  <--  claim table and differing claims
 ```
+
+The assistant reads your proposal, searches the course files and the AWS docs for each claim, and compares
+them. It reports what the tools returned; you decide what to change in your proposal.
 
 </details>
 
