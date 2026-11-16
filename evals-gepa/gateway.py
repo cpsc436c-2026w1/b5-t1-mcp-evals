@@ -35,7 +35,7 @@ def base_url() -> str:
 def token() -> str:
     t = os.environ.get("KB_MCP_TOKEN", "").strip()
     if not t:
-        raise GatewayError("KB_MCP_TOKEN is not set. Set it to your course token (README step 1), "
+        raise GatewayError("KB_MCP_TOKEN is not set. Set it to your course token (README section 2, Set up), "
                            "then open a new terminal or run the set command again.")
     return t
 

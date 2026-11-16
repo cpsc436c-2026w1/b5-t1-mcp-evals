@@ -1,4 +1,4 @@
-"""Step 9: the before/after comparison on the held-out (test) cases, and the cost of the whole run in CAD.
+"""Step 6: the before/after comparison on the held-out (test) cases, and the cost of the whole run in CAD.
 No model calls: it reads the Inspect logs in logs/ and logs/optimize.log.
 
     uv run python compare.py
@@ -47,7 +47,7 @@ def main() -> int:
     print(f"cost of everything in logs/: {total:.6f} CAD")
     before, after = test.get("prompt.txt"), test.get("prompt.optimized.txt")
     if not (before and after):
-        print("For the comparison, run the test split with prompt.txt and with prompt.optimized.txt (steps 4 and 8).")
+        print("For the comparison, run the test split with prompt.txt and with prompt.optimized.txt (steps 1 and 5).")
         return 1
     ok = after["score"] >= before["score"]
     print(f"held-out cases: before {before['score']:.3f}, after {after['score']:.3f}")

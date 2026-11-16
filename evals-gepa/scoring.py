@@ -1,7 +1,7 @@
 """Scoring by code: run the model's SQL in DuckDB on data/trips.csv and compare the first cell with the reference.
 
 `check(reply, case)` returns (score, kind, feedback). `kind` is a coarse name from the checker. The finer name of
-a failure (which rule the model broke) is for you to write in the error-analysis table (README step 5).
+a failure (which rule the model broke) is for you to write in the error-analysis table (README step 2).
 The eval (task.py) and the optimiser (optimize.py) both use this function, so they score the same way."""
 
 from __future__ import annotations

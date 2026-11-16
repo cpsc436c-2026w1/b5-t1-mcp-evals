@@ -1,5 +1,5 @@
-"""The whole run in one command (README steps 2, 3, 4, 6, 8 and 9): estimate, check, eval on the test cases, GEPA, eval again, comparison and cost.
-Use it to catch up. In the tutorial, run the steps one by one (README) so you read the failures first.
+"""The whole run in one command (README set-up check and steps 1, 3, 5 and 6): estimate, check, eval on the test cases, GEPA, eval again, comparison and cost.
+Use it to catch up. In the tutorial, run the steps one by one (README) so you read the failures first (steps 2 and 4).
 
     uv run python run_all.py
 """

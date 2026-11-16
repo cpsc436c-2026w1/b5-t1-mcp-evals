@@ -1,4 +1,4 @@
-"""Step 6: dspy.GEPA rewrites the prompt, using the train and val cases only. The test cases are never loaded here.
+"""Step 3: dspy.GEPA rewrites the prompt, using the train and val cases only. The test cases are never loaded here.
 
     uv run python optimize.py                      # reads prompt.txt, writes prompt.optimized.txt
     uv run python optimize.py --max-metric-calls 12 --budget-cad 0.01

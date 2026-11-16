@@ -11,6 +11,8 @@ dependencies = [
     "pytest>=8",
     "agent-client-protocol==0.12.1",  # inspect-ai 0.3.287 breaks with 1.0.0 (acp.helpers), the L15 lock has 0.12.1
     "dspy==3.5.0",
+    "ipykernel==7.4.0",   # for tutorial.ipynb (VS Code or Jupyter: select the .venv kernel)
+    "ipywidgets==8.1.9",  # inspect_ai needs it inside a notebook
 ]
 
 [tool.uv]

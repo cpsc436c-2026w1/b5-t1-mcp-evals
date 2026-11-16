@@ -76,15 +76,15 @@ async def run(url: str, token: str) -> None:
                 await session.initialize()
                 tools = await session.list_tools()
                 names = sorted(t.name for t in tools.tools)
-                print(f"Connected to {url}")
-                print(f"Tools: {', '.join(names)}")
+                print(f"✓ connected to {url}")
+                print(f"✓ tools: {', '.join(names)}")
                 if "query_kb" not in names:
                     raise CheckError("the server has no query_kb tool. Check the URL.")
                 result = await session.call_tool("query_kb", {"query": TEST_QUERY, "k": 3})
                 if result.isError:
                     raise CheckError(f"query_kb returned an error: {text_of(result)[:300]}")
                 first = first_result(result)
-                print(f'query_kb("{TEST_QUERY}") first result: {first["file_path"]}')
+                print(f'✓ query_kb("{TEST_QUERY}") first result: {first["file_path"]}')
                 for line in first["lines"]:
                     print(f"  | {line}")
 
@@ -139,8 +139,9 @@ def main() -> None:
     if not token:
         fail(
             "KB_MCP_TOKEN is not set in this terminal.\n"
-            "Set it (see README step 1) in the same terminal, then run this again."
+            "Set it (README section 2, Set up) in the same terminal, then run this again."
         )
+    print("✓ KB_MCP_TOKEN is set")
     url = os.environ.get("KB_MCP_URL", DEFAULT_URL)
     async def run_with_timeout() -> None:
         with anyio.fail_after(TIMEOUT_S * 2):
