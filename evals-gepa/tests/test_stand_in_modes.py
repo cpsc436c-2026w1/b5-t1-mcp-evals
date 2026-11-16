@@ -54,3 +54,35 @@ def test_dspy_lm_without_model_type_chat_hits_responses_and_404s(stand_in):
     with pytest.raises(Exception, match="not found"):
         lm("hello")
     assert stand_in.post_paths == ["/v1/responses"]
+
+
+GATEWAY_UPSTREAM_TIMEOUT_S = 60  # the course gateway's read timeout to the model (2026-11-16)
+
+
+def test_slow_reply_is_not_cut_off_by_the_kit_client_timeout(stand_in):
+    """A slow model reply must end at the gateway (502 after its upstream timeout), not at the kit's own client
+    timeout. The stand-in delays its reply; the kit's client waits for it without a retry."""
+    import gateway
+
+    assert gateway.client().timeout > GATEWAY_UPSTREAM_TIMEOUT_S
+    assert gateway.inspect_model().config.timeout > GATEWAY_UPSTREAM_TIMEOUT_S  # the Inspect eval's client too
+    stand_in.delay_s = 1.0
+    r = gateway.chat("qwen3.6-35b-a3b", [{"role": "user", "content": "hello"}], 64)
+    assert r["text"] and stand_in.chat_calls == 1
+
+
+def test_reply_slower_than_the_client_timeout_retries_then_says_so(stand_in, monkeypatch):
+    """Control for the test above: with a client timeout shorter than the delay, the same reply times out, the kit
+    retries and then stops with its plain timeout message."""
+    import openai
+    import pytest
+
+    import gateway
+
+    stand_in.delay_s = 1.0
+    short = openai.OpenAI(base_url=gateway.base_url(), api_key=gateway.token(), max_retries=0, timeout=0.3)
+    monkeypatch.setattr(gateway, "_client", short)
+    monkeypatch.setattr(gateway, "_client_for", (gateway.base_url(), gateway.token()))
+    with pytest.raises(gateway.GatewayError, match="took longer than"):
+        gateway.chat("qwen3.6-35b-a3b", [{"role": "user", "content": "hello"}], 64)
+    assert stand_in.chat_calls == gateway.RETRIES_502 + 1
