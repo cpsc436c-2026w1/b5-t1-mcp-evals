@@ -562,7 +562,7 @@ Your provider serves the task and reflection models. The kit can run the calls, 
 
 Use this exercise if you have a key from another provider with an OpenAI-compatible API. OpenAI is one example; its base URL is `https://api.openai.com/v1`. In your editor, read `prompt.optimized.txt`, your Step 2 failure names in your notes, and the price list in [`gateway.py`](gateway.py). In a browser tab, check your provider's model list for models your key can use as `TASK_MODEL` and `GEPA_REFLECTOR`.
 
-You pay your provider for these calls. The course gateway's limits do not apply. The kit's CAD stop covers only models in the course price list; for other models, the kit reports cost as unknown and does not stop the run on cost. Keep the key in your shell or the git-ignored `.env`; never put it in a file you commit. See [`.gitignore`](.gitignore).
+You pay your provider for these calls. The course LLM gateway's limits do not apply. The kit's CAD stop covers only models in the course price list; for other models, the kit reports cost as unknown and does not stop the run on cost. Keep the key in your shell or the git-ignored `.env`; never put it in a file you commit. See [`.gitignore`](.gitignore).
 
 **Predict:** In your notes, write down whether you expect the kit's cost lines to show a CAD amount for your chosen models. Do you expect the provider's reflection model to write a prompt that addresses the same failure names as `prompt.optimized.txt`?
 
@@ -626,7 +626,7 @@ You pay your provider for these calls. The course gateway's limits do not apply.
 
    You should see a `prompt.own.txt` row in the terminal output. Check the cost lines against your prediction and your note about the runs in `logs/`. In a browser tab, open your provider's usage page and check what the provider charged for these calls. You should see the provider's reported usage.
 
-8. In the terminal, in the `evals-gepa` folder, remove the provider variables to return to the course gateway.
+8. In the terminal, in the `evals-gepa` folder, remove the provider variables to return to the course LLM gateway.
 
    macOS or Linux:
 
@@ -646,7 +646,7 @@ You pay your provider for these calls. The course gateway's limits do not apply.
 <details>
 <summary>Check your predictions</summary>
 
-Compare the instructions with your failure names and the cost lines with your prediction. For models outside the price list, the kit prints an unknown-cost warning and records their cost as zero; that does not mean the provider's calls were free. The price list in [`gateway.py`](gateway.py) uses course gateway prices. Your provider bills in its own currency and at its own prices.
+Compare the instructions with your failure names and the cost lines with your prediction. For models outside the price list, the kit prints an unknown-cost warning and records their cost as zero; that does not mean the provider's calls were free. The price list in [`gateway.py`](gateway.py) uses course LLM gateway prices. Your provider bills in its own currency and at its own prices.
 
 The CAD stop cannot cover calls whose prices the kit does not know. Your provider's usage page shows what you spent. L17's bounded evaluator-optimizer loop needs a limit that accounts for the calls it makes.
 
