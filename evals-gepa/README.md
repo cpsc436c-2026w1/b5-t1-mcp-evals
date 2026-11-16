@@ -42,8 +42,10 @@ The notebook [`tutorial.ipynb`](tutorial.ipynb) has the same steps as cells; Sec
 
    If you are at the tutorial repository root, run `cd evals-gepa`.
 
-2. Set the same token as in part A. Find it in the issue **Your course MCP tokens** in your team repository.
+2. Set the same token as in part A. On GitHub, in your team repository, find it in the issue **Your course MCP tokens**.
    If you are using the terminal from part A and already set the token there, skip this command.
+
+   In the terminal, in the `evals-gepa` folder, run the command for your system.
 
    macOS or Linux:
 
@@ -59,22 +61,22 @@ The notebook [`tutorial.ipynb`](tutorial.ipynb) has the same steps as cells; Sec
 
    Set the token again in each new terminal. Keep it private.
 
-3. Install the packages:
+3. In the terminal, in the `evals-gepa` folder, install the packages:
 
    ```bash
    uv sync
    ```
 
    uv picks Python 3.13 for this folder and downloads it if needed. You should see the packages install and the
-   command finish without an error.
+   command finish without an error in the terminal.
 
-4. Check the course LLM gateway:
+4. In the terminal, in the `evals-gepa` folder, check the course LLM gateway:
 
    ```bash
    uv run python check_gateway.py
    ```
 
-   You should see output like the following. The reply, token counts and cost can vary.
+   You should see output like the following in the terminal. The reply, token counts and cost can vary.
 
    ```text
    gateway: https://oay6tcpsuv4gn5mubtlj7rnbl40gmrlv.lambda-url.ca-central-1.on.aws/v1
@@ -86,7 +88,7 @@ The notebook [`tutorial.ipynb`](tutorial.ipynb) has the same steps as cells; Sec
    OK: the gateway works with your token.
    ```
 
-   If you see `PROBLEM:`, follow the sentence after it. If the problem remains, ask your TA. Do not share your
+   If you see `PROBLEM:` in the terminal, follow the sentence after it. If the problem remains, ask your TA. Do not share your
    token. A `429` can mean the token budget cannot cover the reserve for a call or the per-minute request limit
    has been reached.
 
@@ -110,7 +112,7 @@ uv run python -m ipykernel install --user \
   --name evals-gepa --display-name "evals-gepa (.venv)"
 ```
 
-In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It should import `inspect_ai`.
+In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. You should see the cell import `inspect_ai` without an error.
 
 ## 3. Steps
 
@@ -129,19 +131,19 @@ SQL and compares its number with the reference.
 </details>
 
 1. Open [`prompt.txt`](prompt.txt) in your editor and read it: this is the system prompt the task model gets.
-2. Open [`data/cases.jsonl`](data/cases.jsonl) and read the `question` of three or four rows whose `split` is
+2. In your editor, open [`data/cases.jsonl`](data/cases.jsonl) and read the `question` of three or four rows whose `split` is
    `test`. These are the held-out cases the eval runs.
 3. **Predict:** Write down whether you expect the starting prompt to pass below half, about half, or more than half
    of the held-out cases. What kind of question do you think might fail, given what the prompt says and does not
    say about the table?
-4. Run the eval:
+4. In the terminal, in the `evals-gepa` folder, run the eval:
 
    ```bash
    uv run inspect eval task.py -T split=test -T prompt=prompt.txt
    ```
 
-   You should see the test cases run. A score appears at the end. Scroll it away or cover it;
-   you will read it in Step 2.
+   You should see the test cases run in the terminal. A score appears in the terminal box at the end. In the terminal,
+   scroll the score away or cover it; you will read it in Step 2.
 
 <details>
 <summary>Check your predictions</summary>
@@ -162,26 +164,30 @@ held-out run -> failed cases -> failure names -> score
 
 </details>
 
-Read the failed cases before you look at the score, so the aggregate does not direct your error analysis. Treat
-the reference SQL and value as correct for this data. When the model's query differs from the reference SQL, name
-what the query did differently.
+In the browser tab that `uv run inspect view` opens, you will read the failed cases before you look at the score,
+so the aggregate does not direct your error analysis. Treat the reference SQL and value as correct for this data.
+When the model's query differs from the reference SQL, name what the query did differently.
 
-A failure name is short and says what to fix. After reading a failed case, invent a name for its failure. Reuse
-that name when another case fails in the same way.
+A failure name is short and says what to fix. After reading a failed case in the viewer, invent a name for its failure.
+Reuse that name when another case fails in the same way.
 
 **Predict:** In your notes, write down whether you expect several failed cases to share a failure name or each
 failed case to need its own name.
 
-1. Start the viewer:
+1. In the terminal, in the `evals-gepa` folder, start the viewer:
 
    ```bash
    uv run inspect view
    ```
 
-   Open the browser link it prints. You should see a list of runs.
-2. Open the newest run. Before looking at its score, click each case whose `sql_check` is 0. Read the question,
-   the task model's reply and the explanation.
-3. Fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
+   You should see a browser address in the terminal. Open that address in a browser tab. You should see either the
+   run's page or a table of runs.
+2. In the browser tab that `uv run inspect view` opened, if you see a table of runs, click the newest run's row.
+   The newest run has the latest COMPLETED time. Do not look at the SCORE column yet. You should see the run's page.
+   On that page, do not look at the `Scorer`/`accuracy` box at the top right yet. In the SAMPLES tab, click each
+   row whose SQL_CHECK is 0. You should see the case's page. On the case's page, read INPUT and ANSWER. Open
+   SCORING and read EXPLANATION in the `sql_check` row. Use the run name at the top left to return to the run's page.
+3. In your notes, fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
    failed case.
 
    | case id | what went wrong | name of the failure |
@@ -190,8 +196,9 @@ failed case to need its own name.
    | | | |
    | | | |
 
-4. Read the score at the top of the run in the viewer, or at the end of the Step 1 terminal output. Count how
-   many cases each failure name covers. Press Ctrl+C in the viewer terminal to stop the viewer.
+4. In the browser tab, read the score in the `Scorer`/`accuracy` box at the top right of the run's page. Alternatively,
+   read the score in the box at the end of the Step 1 terminal output. In your notes, count how many cases each
+   failure name covers. Press Ctrl+C in the viewer terminal to stop the viewer.
 
 <details>
 <summary>Check your predictions</summary>
@@ -219,17 +226,17 @@ cases.
 **Predict:** In your notes, write down whether you expect the new prompt to address none, some or all of your
 failure names. Do you expect the new prompt to state, in its own words, a rule you found in Step 2?
 
-1. Run:
+1. In the terminal, in the `evals-gepa` folder, run:
 
    ```bash
    uv run python optimize.py
    ```
 
-   You should see the estimate first, progress bars and log lines such as
-   `Iteration 1: Proposed new text for predict:` with each new prompt. It runs longer when the gateway is busy.
-2. At the end, look for lines like `candidates 2; val scores [...]; best 1`, the calls, and
-   `cost ... CAD; ... s; wrote prompt.optimized.txt`. The file `prompt.optimized.txt` should now be next to
-   [`prompt.txt`](prompt.txt).
+   You should see the estimate first in the terminal, followed by progress bars and log lines such as
+   `Iteration 1: Proposed new text for predict:` with each new prompt.
+2. In the terminal output at the end, look for lines like `candidates 2; val scores [...]; best 1`, the calls, and
+   `cost ... CAD; ... s; wrote prompt.optimized.txt`. In your editor's `evals-gepa` folder file list, you should
+   see `prompt.optimized.txt` next to [`prompt.txt`](prompt.txt).
 
    The cost meter in [`optimize.py`](optimize.py) stops GEPA before any call that could take it past 0.05 CAD.
 
@@ -258,12 +265,13 @@ using the prompt and check their claims.
 **Predict:** Write down whether you expect every failure name in your table to be addressed, and whether you
 expect every added rule to be true of the data.
 
-1. Open `prompt.optimized.txt` and [`prompt.txt`](prompt.txt) side by side. You should see the starting instructions and any
+1. In your editor, open `prompt.optimized.txt` and [`prompt.txt`](prompt.txt) side by side. You should see the starting instructions and any
    changes GEPA made.
-2. For each added line, write down which of your failure names it addresses. Note any name that the new prompt
-   does not address.
-3. Open [`data/build.py`](data/build.py), the script that made the data. Choose one rule GEPA wrote and check whether the script
-   supports it. Ask whether every added line is true of the data. Mark any claim you cannot verify.
+2. For each added line in the editor, write down in your notes which failure name from your Step 2 table it addresses.
+   In your notes, mark any name that the new prompt does not address.
+3. In your editor, open [`data/build.py`](data/build.py), the data script. Choose one rule from
+   `prompt.optimized.txt` in the editor and check whether the script supports it. In your notes,
+   mark whether each added line is true of the data, and mark any claim you cannot verify.
 
 <details>
 <summary>Check your predictions</summary>
@@ -290,17 +298,23 @@ prompt using val cases, so the held-out cases provide a separate check.
 **Predict:** Write down whether you expect the held-out score to be higher, lower, or about the same, and whether
 you expect the same or fewer failures.
 
-1. Run:
+1. In the terminal, in the `evals-gepa` folder, run:
 
    ```bash
    uv run inspect eval task.py -T split=test -T prompt=prompt.optimized.txt
    ```
 
-   The eval ends with a score.
-2. Run `uv run inspect view` and open the browser link and newest run. You should see the new prompt's results.
-   Read the question, reply and explanation for any case whose `sql_check` is 0. Does each remaining failure
-   have a name in your table? If none fail, which of your names did the new prompt fix?
-3. Compare the score and failures with Step 2. Press Ctrl+C in the viewer terminal to stop the viewer.
+   You should see a score in the terminal box at the end of the eval.
+2. In the terminal, in the `evals-gepa` folder, run `uv run inspect view`. You should see a browser address in the
+   terminal. Open that address in a browser tab. You should see a table of runs. Click the row with TASK
+   `sql_test_prompt_optimized`. You should see the new prompt's run page.
+   In the SAMPLES tab, click each row whose SQL_CHECK is 0. On each case's page, read INPUT and ANSWER. Open
+   SCORING and read EXPLANATION in the `sql_check` row. Use the run name at the top left to return to the run's page.
+   Compare the remaining failures in the browser with the names in your Step 2 table in your notes. Does each
+   remaining failure have a name in your table? If none fail, which of your names did the new prompt fix?
+3. Compare the score in the `Scorer`/`accuracy` box on the new run's page with the Step 2 score in your notes or
+   the Step 1 terminal output. Compare the failures in the new run's SAMPLES tab with your Step 2 table in your
+   notes. Press Ctrl+C in the viewer terminal to stop the viewer.
 
 <details>
 <summary>Check your predictions</summary>
@@ -325,22 +339,22 @@ Your token's term budget is 2 CAD. The course rule for one whole run (check, eva
 0.10 CAD. [`budget.py`](budget.py) prints an upper-bound estimate of the calls and their cost before any call. [`optimize.py`](optimize.py)
 printed an estimate at the start of Step 3. [`compare.py`](compare.py) reads `logs/` and reports the actual cost.
 
-1. Print the estimate again with [`budget.py`](budget.py):
+1. In the terminal, in the `evals-gepa` folder, print the estimate again with [`budget.py`](budget.py):
 
    ```bash
    uv run python budget.py
    ```
 
-   You should see the upper-bound calls and cost for the whole run.
+   You should see the upper-bound calls and cost for the whole run in the terminal output.
 2. **Predict:** In your notes, write down how far below this estimate you expect the recorded total to be: about
    the same, around half, or a small fraction. Do you expect the whole session to cost a few cents or less?
-3. Compare the recorded runs with [`compare.py`](compare.py):
+3. In the terminal, in the `evals-gepa` folder, compare the recorded runs with [`compare.py`](compare.py):
 
    ```bash
    uv run python compare.py
    ```
 
-   You should see one line per eval run with when, split, prompt, cases, score and cost in CAD, followed by
+   You should see one line per eval run in the terminal output with when, split, prompt, cases, score and cost in CAD, followed by
    `GEPA (logs/optimize.log): ... CAD`, `cost of everything in logs/: ... CAD`, and
    `held-out cases: before ..., after ...`. The last check says
    `check: the after score is at least the before score on the held-out cases: yes` or ends in `NO`.
@@ -349,7 +363,8 @@ printed an estimate at the start of Step 3. [`compare.py`](compare.py) reads `lo
    [`optimize.py`](optimize.py) prints GEPA's cost and records it in `logs/optimize.log`. The gateway check prints the cost
    of its own call.
 
-4. Compare the recorded total with the estimate. With 12 test cases, one case is about 8 points of the score;
+4. Compare the recorded total in the `compare.py` terminal output with the estimate in the `budget.py` terminal
+   output. With 12 test cases, one case is about 8 points of the score;
    a small difference can come from chance.
 
 <details>
@@ -362,7 +377,7 @@ bounded attempts help keep spending within a limit.
 
 ## 4. Extra exercises
 
-**Compare another GEPA run.** Save the first optimised prompt under another name. In macOS or Linux:
+**Compare another GEPA run.** In the terminal, in the `evals-gepa` folder, save the first optimised prompt under another name. In macOS or Linux:
 
 ```bash
 cp prompt.optimized.txt prompt.first.txt
@@ -374,9 +389,12 @@ In PowerShell:
 Copy-Item prompt.optimized.txt prompt.first.txt
 ```
 
+In your editor's `evals-gepa` folder file list, you should see `prompt.first.txt`.
+
 **Predict:** will a second GEPA run with another seed write the same prompt, a similar one, or a different one?
-Then run `uv run python optimize.py --seed 1` and compare the new `prompt.optimized.txt` with `prompt.first.txt`:
-which lines are the same, and which differ?
+In the terminal, in the `evals-gepa` folder, run `uv run python optimize.py --seed 1`. You should see the estimate,
+progress and final lines in the terminal. In your editor, open `prompt.optimized.txt` and
+`prompt.first.txt` side by side. Which lines are the same, and which differ?
 
 <details>
 <summary>Check your answer</summary>
@@ -387,13 +405,14 @@ equal.
 </details>
 
 **Eval on train.** Predict whether the score on cases GEPA read will be higher than, lower than, or about the
-same as the held-out score. Run:
+same as the held-out score. In the terminal, in the `evals-gepa` folder, run:
 
 ```bash
 uv run inspect eval task.py -T split=train -T prompt=prompt.optimized.txt
 ```
 
-Compare the train score with the held-out score for the prompt you evaluated.
+You should see the train score in the terminal box at the end of the eval. Compare that score with the held-out
+score for the prompt you evaluated in the Step 5 terminal box or on the new run's page in the viewer.
 
 <details>
 <summary>Check your prediction</summary>

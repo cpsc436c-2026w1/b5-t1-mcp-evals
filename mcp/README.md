@@ -44,7 +44,8 @@ key for the course LLM gateway in part B.
 If you start your assistant from an editor or app icon, such as VS Code or the Kiro app, make the token setting
 permanent. An app started from an icon does not read the settings of a terminal window.
 
-- On macOS, add the `export` line above to `~/.zshrc`. On Linux with bash, add it to `~/.bashrc`.
+- On macOS, open `~/.zshrc` in your editor and add the `export` line above. On Linux with bash, open
+  `~/.bashrc` in your editor and add the line.
 - On Windows, run the following once in PowerShell. Replace `paste-your-token-here` with your token and keep the
   double quotes:
 
@@ -75,19 +76,21 @@ The first run downloads Python packages. On success, you should see:
 OK: your token works and the course MCP server answered.
 ```
 
-The path and file lines depend on the search result. If a line starts with `FAILED:`, read its fix:
+The path and file lines depend on the search result. If a line in the terminal starts with `FAILED:`, read its fix
+in the list below:
 
 - `KB_MCP_TOKEN is not set`: set the token again in the same terminal.
-- `the server refused your token (HTTP 401)`: copy the newest token from "Your course MCP tokens" and set it again.
-  Check for extra spaces.
-- `could not reach` or `no answer`: check your internet connection. Try without your VPN or ask a TA about a work
-  network or proxy.
+- `the server refused your token (HTTP 401)`: copy the newest token from "Your course MCP tokens" and set it again
+  in the terminal. Check the token in the terminal for extra spaces.
+- `could not reach` or `no answer`: check your internet connection on your laptop. Try without your VPN or ask a TA
+  about a work network or proxy.
 
-Run the check again. Ask a TA if the fix does not work.
+In the terminal in the `mcp` folder, run the check again. Ask a TA if the fix does not work.
 
 ## 3. Steps
 
-Each step has a prediction to write down first. Do the actions, then open the check and compare.
+Each step has a prediction to write down first. Do the actions. Open the check at the end of the step and compare
+it with your prediction.
 
 ### Step 1: connect your assistant
 
@@ -101,12 +104,13 @@ assistant  --reads configuration-->  MCP servers
 
 </details>
 
-1. Go to the root of your team repository, the folder containing `docs/` and `.mcp.json.example`. Open
-   `.mcp.json.example` and read it: it names the servers your assistant will connect to and reads the token from
-   `KB_MCP_TOKEN`. Do not edit it.
+1. In your editor, open `.mcp.json.example` at the root of your team repository, the folder containing `docs/` and
+   `.mcp.json.example`. Read the file: it names the servers your assistant will connect to and reads the token from
+   `KB_MCP_TOKEN`. Do not edit the file.
 2. **Predict:** Write down which servers you expect your assistant to list as connected. What do you expect the
    list to show for `436c` if the assistant starts in a window where the token is not set?
-3. Copy the example for your assistant:
+3. In a terminal on your laptop, go to the root of your team repository. Copy the example for your assistant with
+   the command for your operating system:
 
    | Assistant | macOS or Linux | Windows PowerShell |
    |---|---|---|
@@ -115,12 +119,14 @@ assistant  --reads configuration-->  MCP servers
 
    If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
 
-4. Run `git status`. Neither `.mcp.json` nor `.kiro/settings/mcp.json` should appear; both must stay on your laptop. If either appears, stop and ask a TA. Never put the token in these files.
+4. In the terminal at your team repo root, run `git status`. You should see that neither `.mcp.json` nor
+   `.kiro/settings/mcp.json` appears in the terminal output; both must stay on your laptop. If either appears,
+   stop and ask a TA. Never put the token in these files.
 5. Start your assistant with the token set:
 
    - **Claude Code:** in the terminal where you set the token, at the team repo root, run `claude`. Approve the
      servers in `.mcp.json` when asked.
-   - **Kiro:** make the token permanent (section 2), quit Kiro fully, then open Kiro again on the team repo root.
+   - **Kiro:** make the token permanent (section 2). Quit Kiro fully. Open Kiro again on the team repo root.
 
 6. Check the connection. In Claude Code, type `/mcp`. In Kiro, open the MCP servers view in the Kiro panel. You
    should see `436c` and `aws-knowledge` with connected status. If `436c` is missing or failed, do not edit
@@ -147,20 +153,22 @@ user message  -->  assistant  --query_kb-->  course files
 
 </details>
 
-1. **Predict:** using the tool list from your setup check, write down for each question whether the assistant will call a
-   tool, which tool it will call, and what kind of
-   course file it will name.
-2. Ask the assistant each question separately:
+1. **Predict:** using the tool list on the `✓ tools:` line the setup check printed in the terminal in the `mcp`
+   folder, write down for each question whether the assistant will call a tool, which tool it will call, and what
+   kind of course file it will name.
+2. In your assistant's chat, ask each question separately:
 
    > Using only the course MCP, why does sorting a Parquet file by a column help queries that filter on that column? Name the course file you used.
 
    > Using only the course MCP, how does AWS Lambda bill a function, and what do you pay between calls? Name the course file you used.
 
+   You should see a reply to each question in the chat.
 3. Look for the tool call in the chat. Claude Code shows `436c - query_kb (MCP)` with the query it sent. Kiro shows
    the tool name and asks you to allow it. You should see replies that name course files and quote or paraphrase
    their passages.
-4. If you do not see a tool call, the assistant answered from memory. Ask again: "Use the query_kb tool and show me
-   the file paths it returned."
+4. If you do not see a tool call in the chat, the assistant answered from memory. Ask again in the chat: "Use the
+   query_kb tool and show me the file paths it returned." You should see a tool call and the returned file paths
+   in the chat.
 
 <details>
 <summary>Check your predictions</summary>
@@ -188,12 +196,13 @@ assistant  --get_kb_doc(path)-->  course MCP server
 
 </details>
 
-1. Choose a file path named in Step 2. Predict what `get_kb_doc` will return for that path and what it will return
-   for a path the assistant made up.
-2. Ask: "Call get_kb_doc on that file path and show me its first three lines." You should see the document if the
-   path is real.
-3. Make up a different course file path and ask the assistant to call `get_kb_doc` on it. You should see an error or
-   a tool result that does not return a file. If the path happens to be real, make up another and try again.
+1. In your assistant's chat, choose a file path named in Step 2. Predict what `get_kb_doc` will return for that path
+   and what it will return for a path the assistant made up.
+2. In your assistant's chat, ask: "Call get_kb_doc on that file path and show me its first three lines." You should
+   see the document in the chat if the path is real.
+3. Make up a different course file path and ask the assistant in the chat to call `get_kb_doc` on it. You should see
+   an error or a tool result that does not return a file in the chat. If the path happens to be real, make up another
+   and try again in the chat.
 
 <details>
 <summary>Check your predictions</summary>
@@ -217,11 +226,11 @@ proposal claims  -->  assistant  --query_kb-->  course files
 
 </details>
 
-1. Open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. If the file is missing, ask a
-   TA.
+1. In your editor, open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. If the file is
+   missing, ask a TA.
 2. Before sending the prompt, write down which AWS claims in your proposal you expect the course files to cover
    and which you expect only the AWS docs to cover.
-3. Give your assistant the following user message:
+3. In your assistant's chat, give your assistant the following user message:
 
    ```text
    Read docs/proposal.md and the experiment files it links in section 6.
@@ -248,17 +257,21 @@ proposal claims  -->  assistant  --query_kb-->  course files
       in resources.md (Lambda concurrency, budget, Region).
    ```
 
-   Most of your section 4 numbers are your own measurements. The course files cannot check your dataset numbers, so
-   expect those rows to say "ours". If one says "not found", check whether the number is yours. For DynamoDB, SQS and other
+   You should see a reply in the chat. Most of your section 4 numbers are your own measurements. The course files
+   cannot check your dataset numbers, so expect those rows to say "ours". If a row in the chat says "not found",
+   check the number in `docs/proposal.md` in your editor to see whether it is yours. For DynamoDB, SQS and other
    services the course files do not cover, the AWS Knowledge rows are the check.
 
-4. Look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and a short list of "differs"
-   rows. The assistant makes many tool calls for one proposal, so this step takes a while. If every row
+4. In your assistant's chat, look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and
+   a short list of "differs" rows. You should see the tool calls, table and list in the chat. If every row
    says "not found" and you saw no tool calls, the tools did not run. Return to Step 1 and check the connection.
-5. For each "differs" row, read the source yourself. Fix `docs/proposal.md`, or open an issue in your team repo
-   that quotes the claim, links the source and says why your proposal is right. A "not found" AWS-service row lacks support from
-   the tool results: read the AWS page yourself. A row marked "ours" needs no source; say in the
-   proposal how you measured it.
+5. For each "differs" row in your assistant's chat, read the source yourself. For a course file, ask the assistant
+   to retrieve the file through `get_kb_doc` and read the file in the chat. For an AWS docs URL, open and read the
+   page in a browser tab. You should see the course file in the chat or the AWS page in the browser tab. Fix
+   `docs/proposal.md` in your editor, or open an issue on GitHub in your team repository that quotes the claim,
+   links the source and says why your proposal is right. For a "not found" AWS-service row in the chat, read the
+   AWS page in a browser tab. The tool results do not support that row. A row marked "ours" does not need a source;
+   say in `docs/proposal.md` in your editor how you measured it.
 
 <details>
 <summary>Check your predictions</summary>
@@ -273,8 +286,8 @@ key.
 
 1. **Predict:** if you ask the Parquet question from Step 2 without the words "Using only the course MCP", will the
    assistant call a tool?
-2. Ask the question without those words.
-3. Compare the chat with the one from Step 2: look for the tool call lines.
+2. In a new chat in your assistant, ask the question without those words. You should see a reply in the new chat.
+3. Scroll the new chat and the Step 2 chat. Compare the tool call lines in both chats.
 
 <details>
 <summary>Check your prediction</summary>
