@@ -4,13 +4,16 @@ No model runs here. Use it to try the whole flow without a token or any cost.
     uv run python stand_in_gateway.py                 # serves http://127.0.0.1:8765/v1, token "stand-in-token"
     uv run python stand_in_gateway.py --fail-once     # the first chat call returns 502
     uv run python stand_in_gateway.py --no-luna       # a key that may not use gpt-6-luna (403)
+    uv run python stand_in_gateway.py --delay 5       # every chat reply comes 5 s late
 
 Then, in a second terminal: COURSE_GATEWAY_URL=http://127.0.0.1:8765/v1 and KB_MCP_TOKEN=stand-in-token.
 
 What it does, like the real gateway: checks the bearer token (401), allows only the models of this key (403; the
 default key may use all course models, gpt-6-luna included; `--no-luna` makes a key without it), refuses
 temperature 0 for a GPT model with a 400 as the provider does, answers GET /v1/models and POST /v1/chat/completions
-with a usage block.
+with a usage block, and 404 on POST /v1/responses (the course gateway serves chat completions only).
+Like a thinking model, the reflection model spends its first tokens on reasoning: a reflection request with room for
+fewer than 6000 tokens (max_tokens or max_completion_tokens) comes back with empty content (`thinking_below`).
 How the worker answers: it takes the reference SQL of the question from data/cases.jsonl and breaks it in a way
 you can name, unless the system prompt has a rule that prevents that failure:
   - credit-card questions use payment code 2 (cash) unless the prompt says that 1 is credit card
@@ -18,7 +21,8 @@ you can name, unless the system prompt has a rule that prevents that failure:
   - about one question in three gets a sentence after the query unless the prompt says to reply with SQL only
   - "or later in the day" questions use > where >= is right (no rule fixes this one)
 The reflection model (any model, when the request is GEPA's reflection prompt) adds one rule for each failure it reads about in GEPA's feedback, and answers in the
-JSON format dspy.GEPA asks for."""
+JSON format dspy.GEPA asks for. A question in DSPy's own field format ([[ ## question ## ]], from a plain dspy.LM as in
+gepa_minimal.py) gets its SQL back in that format: the [[ ## sql ## ]] field, or a JSON object when DSPy asks for one."""
 
 from __future__ import annotations
 
@@ -26,7 +30,9 @@ import argparse
 import json
 import os
 import re
+import textwrap
 import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -34,6 +40,7 @@ HERE = Path(__file__).resolve().parent
 TOKEN = "stand-in-token"
 MODELS = ["qwen3.6-35b-a3b", "qwen3.8-27b", "gpt-6-luna", "qwen3-embedding-0.6b"]
 REFLECTORS = ("qwen3.8-27b", "gpt-6-luna")
+THINKING_BELOW = 6000  # a reflection request with less room than this gets an empty reply (all of it went on reasoning)
 
 RULES = {
     "code": "payment_type codes: 1 = credit card, 2 = cash, 3 = no charge, 4 = dispute.",
@@ -63,6 +70,17 @@ def worker_reply(system: str, question: str) -> str:
     if sum(map(ord, question)) % 3 == 0 and not _has(system, "sql_only"):
         sql += "\n\nThis query counts the matching rows and returns the answer."
     return sql
+
+
+def dspy_field_reply(system: str, user: str) -> str:
+    """A question in DSPy's ChatAdapter or JSONAdapter format: the instructions follow "your objective is:" in the
+    system message, the question follows [[ ## question ## ]] in the user message."""
+    m = re.search(r"\[\[ ## question ## \]\]\n(.*?)(?:\n\n|$)", user, re.S)
+    instructions = system.split("your objective is:", 1)[-1]
+    sql = worker_reply(textwrap.dedent(instructions), m.group(1) if m else "")
+    if "[[ ## completed ## ]]" in user:
+        return f"[[ ## sql ## ]]\n{sql}\n\n[[ ## completed ## ]]"
+    return json.dumps({"sql": sql})
 
 
 def reflection_reply(prompt: str) -> str:
@@ -118,6 +136,8 @@ class Handler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(n) or b"{}")
         if not self._auth():
             return
+        with self.server.lock:
+            self.server.post_paths.append(self.path)
         if not self.path.rstrip("/").endswith("/chat/completions"):
             return self._send(404, {"error": {"message": "not found"}})
         model = body.get("model", "")
@@ -143,7 +163,22 @@ class Handler(BaseHTTPRequestHandler):
         if os.environ.get("STAND_IN_DUMP") and reflect:
             with open(os.environ["STAND_IN_DUMP"], "a", encoding="utf-8") as f:
                 f.write(json.dumps(msgs) + "\n")
-        text = reflection_reply(user) if reflect else worker_reply(system, user)
+        if self.server.delay_s:
+            time.sleep(self.server.delay_s)
+        room = body.get("max_completion_tokens") or body.get("max_tokens") or 1 << 30
+        if reflect and room < self.server.thinking_below:  # all of the room went on reasoning
+            with self.server.lock:
+                self.server.empty_replies += 1
+            return self._send(200, {"id": "standin", "object": "chat.completion", "created": 0, "model": model,
+                                    "choices": [{"index": 0, "finish_reason": "length",
+                                                 "message": {"role": "assistant", "content": ""}}],
+                                    "usage": {"prompt_tokens": 100, "completion_tokens": room, "total_tokens": 100 + room}})
+        if reflect:
+            text = reflection_reply(user)
+        elif "[[ ## question ## ]]" in user:
+            text = dspy_field_reply(system, user)
+        else:
+            text = worker_reply(system, user)
         t_in = sum(len(str(m.get("content", ""))) for m in msgs) // 4 + 5
         t_out = len(text) // 4 + 1
         self._send(200, {"id": "standin", "object": "chat.completion", "created": 0, "model": model,
@@ -152,13 +187,17 @@ class Handler(BaseHTTPRequestHandler):
                          "usage": {"prompt_tokens": t_in, "completion_tokens": t_out, "total_tokens": t_in + t_out}})
 
 
-def serve(port: int = 8765, fail_502: int = 0, token: str = TOKEN, models: list[str] | None = None) -> ThreadingHTTPServer:
+def serve(port: int = 8765, fail_502: int = 0, token: str = TOKEN, models: list[str] | None = None,
+          delay_s: float = 0.0, thinking_below: int = THINKING_BELOW) -> ThreadingHTTPServer:
     """Starts the server in a background thread and returns it (call .shutdown() to stop).
-    `models`: the models this key may use (default MODELS). `calls_by_model` and `requests` record each chat call."""
+    `models`: the models this key may use (default MODELS). `calls_by_model` and `requests` record each chat call,
+    `post_paths` every POST path, `empty_replies` the reflection replies that came back empty.
+    `delay_s`: seconds before each chat reply. `thinking_below`: 0 turns the empty reflection replies off."""
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     srv.token, srv.fail_502, srv.chat_calls, srv.lock = token, fail_502, 0, threading.Lock()
     srv.models = list(MODELS if models is None else models)
-    srv.calls_by_model, srv.requests = {}, []
+    srv.calls_by_model, srv.requests, srv.post_paths, srv.empty_replies = {}, [], [], 0
+    srv.delay_s, srv.thinking_below = delay_s, thinking_below
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     return srv
 
@@ -168,8 +207,10 @@ if __name__ == "__main__":
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--fail-once", action="store_true", help="the first chat call returns 502")
     ap.add_argument("--no-luna", action="store_true", help="a key that may not use gpt-6-luna")
+    ap.add_argument("--delay", type=float, default=0.0, help="seconds before each chat reply")
     a = ap.parse_args()
-    srv = serve(a.port, 1 if a.fail_once else 0, models=[m for m in MODELS if not (a.no_luna and m == "gpt-6-luna")])
+    srv = serve(a.port, 1 if a.fail_once else 0, models=[m for m in MODELS if not (a.no_luna and m == "gpt-6-luna")],
+                delay_s=a.delay)
     print(f"stand-in gateway on http://127.0.0.1:{a.port}/v1  token: {TOKEN}  (Ctrl+C to stop)")
     try:
         threading.Event().wait()
