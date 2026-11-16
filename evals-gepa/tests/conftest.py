@@ -5,8 +5,10 @@ from pathlib import Path
 
 import pytest
 
-import gateway
-import stand_in_gateway
+os.environ["B5T1_NO_DOTENV"] = "1"  # before the kit is imported: gateway.py reads a .env file at import time
+
+import gateway  # noqa: E402
+import stand_in_gateway  # noqa: E402
 
 
 def free_port() -> int:
