@@ -1,11 +1,14 @@
 # CPSC 436C 2026W1 tutorial B5T1: course MCP, model gateway, evals
 
 You will connect your coding assistant to the course MCP server with your own token, test it on two questions, and
-use it to check the numbers and AWS claims in your project proposal.
+use it to check the numbers and AWS claims in your project proposal. Then you will call the course model gateway with
+the same token, evaluate a prompt on held-out questions, read the failures, improve the prompt with GEPA, and evaluate
+it again.
 
 | Part | Folder | Time |
 |---|---|---|
 | Course MCP: connect, test, check your proposal | [`mcp/`](mcp/README.md) | about 20 minutes |
+| Model gateway, evals and prompt optimisation | [`evals-gepa/`](evals-gepa/README.md) | about 30 minutes |
 
 ## Before you start
 
@@ -13,4 +16,4 @@ use it to check the numbers and AWS claims in your project proposal.
 - Your course MCP token, from the issue "Your course MCP tokens" in your team repository.
 - Your team repository cloned, with `docs/proposal.md`.
 
-Start with [`mcp/README.md`](mcp/README.md).
+Start with [`mcp/README.md`](mcp/README.md), then [`evals-gepa/README.md`](evals-gepa/README.md).

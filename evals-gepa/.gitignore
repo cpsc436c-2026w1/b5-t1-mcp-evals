@@ -1,0 +1,5 @@
+.venv/
+logs/
+prompt.optimized.txt
+__pycache__/
+.pytest_cache/
