@@ -133,7 +133,7 @@ SQL and compares its number with the reference.
 1. Open [`prompt.txt`](prompt.txt) in your editor and read it: this is the system prompt the task model gets.
 2. In your editor, open [`data/cases.jsonl`](data/cases.jsonl) and read the `question` of three or four rows whose `split` is
    `test`. These are the held-out cases the eval runs.
-3. **Predict:** Write down whether you expect the starting prompt to pass below half, about half, or more than half
+3. **Predict:** In your notes, write down whether you expect the starting prompt to pass below half, about half, or more than half
    of the held-out cases. What kind of question do you think might fail, given what the prompt says and does not
    say about the table?
 4. In the terminal, in the `evals-gepa` folder, run the eval:
@@ -143,7 +143,7 @@ SQL and compares its number with the reference.
    ```
 
    You should see the test cases run in the terminal. A score appears in the terminal box at the end. In the terminal,
-   scroll the score away or cover it; you will read it in Step 2.
+   scroll the score away or cover it. You will read it in Step 2.
 
 <details>
 <summary>Check your predictions</summary>
@@ -164,8 +164,8 @@ held-out run -> failed cases -> failure names -> score
 
 </details>
 
-In the browser tab that `uv run inspect view` opens, you will read the failed cases before you look at the score,
-so the aggregate does not direct your error analysis. Treat the reference SQL and value as correct for this data.
+In the browser tab with the Inspect viewer (items 1 and 2 below), read the failed cases before you look at the
+score, so the aggregate does not direct your error analysis. Treat the reference SQL and value as correct for this data.
 When the model's query differs from the reference SQL, name what the query did differently.
 
 A failure name is short and says what to fix. After reading a failed case in the viewer, invent a name for its failure.
@@ -182,11 +182,13 @@ failed case to need its own name.
 
    You should see a browser address in the terminal. Open that address in a browser tab. You should see either the
    run's page or a table of runs.
-2. In the browser tab that `uv run inspect view` opened, if you see a table of runs, click the newest run's row.
-   The newest run has the latest COMPLETED time. Do not look at the SCORE column yet. You should see the run's page.
-   On that page, do not look at the `Scorer`/`accuracy` box at the top right yet. In the SAMPLES tab, click each
-   row whose SQL_CHECK is 0. You should see the case's page. On the case's page, read INPUT and ANSWER. Open
-   SCORING and read EXPLANATION in the `sql_check` row. Use the run name at the top left to return to the run's page.
+2. In the browser tab you opened at that address, find the starting prompt's run. If the tab opened directly on a
+   run's page, that is the run. If you see a table of runs, click the row with TASK ARGS
+   `split="test", prompt="prompt.txt"` and the latest COMPLETED time. Do not look at the SCORE column yet. You
+   should see the run's page. On that page, do not look at the `Scorer`/`accuracy` box at the top right yet. In the
+   SAMPLES tab, click each row whose SQL_CHECK is 0. You should see the case's page. On the case's page, read INPUT
+   and ANSWER. Open SCORING and read EXPLANATION in the `sql_check` row. Use the run name at the top left to return
+   to the run's page.
 3. In your notes, fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
    failed case.
 
@@ -235,7 +237,7 @@ failure names. Do you expect the new prompt to state, in its own words, a rule y
    You should see the estimate first in the terminal, followed by progress bars and log lines such as
    `Iteration 1: Proposed new text for predict:` with each new prompt.
 2. In the terminal output at the end, look for lines like `candidates 2; val scores [...]; best 1`, the calls, and
-   `cost ... CAD; ... s; wrote prompt.optimized.txt`. In your editor's `evals-gepa` folder file list, you should
+   a line with `cost ... CAD` that ends in `wrote prompt.optimized.txt`. In your editor's `evals-gepa` folder file list, you should
    see `prompt.optimized.txt` next to [`prompt.txt`](prompt.txt).
 
    The cost meter in [`optimize.py`](optimize.py) stops GEPA before any call that could take it past 0.05 CAD.
@@ -262,7 +264,7 @@ using the prompt and check their claims.
 
 </details>
 
-**Predict:** Write down whether you expect every failure name in your table to be addressed, and whether you
+**Predict:** In your notes, write down whether you expect every failure name in your table to be addressed, and whether you
 expect every added rule to be true of the data.
 
 1. In your editor, open `prompt.optimized.txt` and [`prompt.txt`](prompt.txt) side by side. You should see the starting instructions and any
@@ -295,7 +297,7 @@ prompt using val cases, so the held-out cases provide a separate check.
 
 </details>
 
-**Predict:** Write down whether you expect the held-out score to be higher, lower, or about the same, and whether
+**Predict:** In your notes, write down whether you expect the held-out score to be higher, lower, or about the same, and whether
 you expect the same or fewer failures.
 
 1. In the terminal, in the `evals-gepa` folder, run:
@@ -307,9 +309,10 @@ you expect the same or fewer failures.
    You should see a score in the terminal box at the end of the eval.
 2. In the terminal, in the `evals-gepa` folder, run `uv run inspect view`. You should see a browser address in the
    terminal. Open that address in a browser tab. You should see a table of runs. Click the row with TASK
-   `sql_test_prompt_optimized`. You should see the new prompt's run page.
-   In the SAMPLES tab, click each row whose SQL_CHECK is 0. On each case's page, read INPUT and ANSWER. Open
-   SCORING and read EXPLANATION in the `sql_check` row. Use the run name at the top left to return to the run's page.
+   `sql_test_prompt_optimized`. You should see the new prompt's run page. In the SAMPLES tab, click each row whose
+   SQL_CHECK is 0. You should see that case's page. On each case's page, read INPUT and ANSWER. Open SCORING and
+   read EXPLANATION in the `sql_check` row. You should see the checker's explanation for that case. Use the run name
+   at the top left to return to the run's page.
    Compare the remaining failures in the browser with the names in your Step 2 table in your notes. Does each
    remaining failure have a name in your table? If none fail, which of your names did the new prompt fix?
 3. Compare the score in the `Scorer`/`accuracy` box on the new run's page with the Step 2 score in your notes or
@@ -391,7 +394,8 @@ Copy-Item prompt.optimized.txt prompt.first.txt
 
 In your editor's `evals-gepa` folder file list, you should see `prompt.first.txt`.
 
-**Predict:** will a second GEPA run with another seed write the same prompt, a similar one, or a different one?
+**Predict:** In your notes, write down whether you expect a second GEPA run with another seed to write the same
+prompt, a similar one, or a different one.
 In the terminal, in the `evals-gepa` folder, run `uv run python optimize.py --seed 1`. You should see the estimate,
 progress and final lines in the terminal. In your editor, open `prompt.optimized.txt` and
 `prompt.first.txt` side by side. Which lines are the same, and which differ?
@@ -404,7 +408,7 @@ different seed can lead to a different prompt. Compare the prompts and their eva
 equal.
 </details>
 
-**Eval on train.** Predict whether the score on cases GEPA read will be higher than, lower than, or about the
+**Eval on train.** In your notes, predict whether the score on cases GEPA read will be higher than, lower than, or about the
 same as the held-out score. In the terminal, in the `evals-gepa` folder, run:
 
 ```bash

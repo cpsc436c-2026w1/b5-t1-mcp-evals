@@ -89,8 +89,8 @@ In the terminal in the `mcp` folder, run the check again. Ask a TA if the fix do
 
 ## 3. Steps
 
-Each step has a prediction to write down first. Do the actions. Open the check at the end of the step and compare
-it with your prediction.
+Each step has a prediction to write down in your notes first. Do the actions. At the end of the step, open the
+**Check your predictions** box and compare it with the prediction in your notes.
 
 ### Step 1: connect your assistant
 
@@ -107,8 +107,8 @@ assistant  --reads configuration-->  MCP servers
 1. In your editor, open `.mcp.json.example` at the root of your team repository, the folder containing `docs/` and
    `.mcp.json.example`. Read the file: it names the servers your assistant will connect to and reads the token from
    `KB_MCP_TOKEN`. Do not edit the file.
-2. **Predict:** Write down which servers you expect your assistant to list as connected. What do you expect the
-   list to show for `436c` if the assistant starts in a window where the token is not set?
+2. **Predict:** In your notes, write down which servers you expect your assistant to list as connected. What do
+   you expect the list to show for `436c` if the assistant starts in a window where the token is not set?
 3. In a terminal on your laptop, go to the root of your team repository. Copy the example for your assistant with
    the command for your operating system:
 
@@ -117,7 +117,8 @@ assistant  --reads configuration-->  MCP servers
    | Claude Code | `cp .mcp.json.example .mcp.json` | `Copy-Item .mcp.json.example .mcp.json` |
    | Kiro | `mkdir -p .kiro/settings && cp .mcp.json.example .kiro/settings/mcp.json` | `New-Item -ItemType Directory -Force .kiro\settings; Copy-Item .mcp.json.example .kiro\settings\mcp.json` |
 
-   If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
+   You should see the command finish without an error in the terminal, and the copied file in your editor's file
+   list of the team repo. If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
 
 4. In the terminal at your team repo root, run `git status`. You should see that neither `.mcp.json` nor
    `.kiro/settings/mcp.json` appears in the terminal output; both must stay on your laptop. If either appears,
@@ -226,9 +227,9 @@ proposal claims  -->  assistant  --query_kb-->  course files
 
 </details>
 
-1. In your editor, open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. If the file is
-   missing, ask a TA.
-2. Before sending the prompt, write down which AWS claims in your proposal you expect the course files to cover
+1. In your editor, open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. You should see
+   those sections in the editor. If the file is missing, ask a TA.
+2. Before sending the prompt, write down in your notes which AWS claims in your proposal you expect the course files to cover
    and which you expect only the AWS docs to cover.
 3. In your assistant's chat, give your assistant the following user message:
 
@@ -284,8 +285,8 @@ key.
 
 ## 4. Extra exercises
 
-1. **Predict:** if you ask the Parquet question from Step 2 without the words "Using only the course MCP", will the
-   assistant call a tool?
+1. **Predict:** In your notes, write down whether you expect the assistant to call a tool if you ask the Parquet
+   question from Step 2 without the words "Using only the course MCP".
 2. In a new chat in your assistant, ask the question without those words. You should see a reply in the new chat.
 3. Scroll the new chat and the Step 2 chat. Compare the tool call lines in both chats.
 
