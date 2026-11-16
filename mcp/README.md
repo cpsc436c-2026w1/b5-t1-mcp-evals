@@ -17,6 +17,9 @@ file formats, search the course server first. In this part you connect the serve
 the course knowledge base (Step 2), open the document behind an answer to check it (Step 3), and check the numbers
 and AWS claims in your proposal against the course knowledge base and the AWS docs (Step 4).
 
+To see these calls in code, read [`mcp_minimal.py`](mcp_minimal.py): about 20 lines that connect, list the tools,
+search and open a document, the same calls your assistant makes.
+
 L17 introduced MCP (Model Context Protocol), a standard way for an AI app to use tools, data and prompt templates
 offered by another program. The course server searches lecture decks, tutorials and readings, and returns passages
 with their file paths. Your coding assistant is the host app: it runs tool calls against the server and receives
@@ -391,6 +394,7 @@ Reflection:
 | File | What it is |
 |---|---|
 | [`mcp_check.py`](mcp_check.py) | Checks the token, connection, tools and a course-file search. |
+| [`mcp_minimal.py`](mcp_minimal.py) | The MCP calls in about 20 lines: connect, list tools, search, open. |
 | [`stand_in_server.py`](stand_in_server.py) | Local stand-in server with fake results for tests. |
 | [`tests/`](tests/) | Tests for the check. |
 | [`pyproject.toml`](pyproject.toml) | Python project and dependency configuration. |

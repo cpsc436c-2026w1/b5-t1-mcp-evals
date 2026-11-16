@@ -18,3 +18,9 @@ def test_minimal_uses_plain_dspy_and_the_chat_api():
 def test_minimal_is_short():
     code = [l for l in SRC.splitlines() if l.strip() and not l.strip().startswith("#")]
     assert len(code) <= 45
+
+
+def test_eval_minimal_compiles_and_is_short():
+    src = (Path(__file__).resolve().parent.parent / "eval_minimal.py").read_text(encoding="utf-8")
+    compile(src, "eval_minimal.py", "exec")
+    assert len([l for l in src.splitlines() if l.strip() and not l.strip().startswith("#")]) <= 40

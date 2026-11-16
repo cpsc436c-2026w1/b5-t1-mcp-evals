@@ -131,6 +131,8 @@ prompt.txt + held-out test cases -> task model -> SQL -> code scorer
 Inspect runs the task model once per case with [`prompt.txt`](prompt.txt) as its system prompt. The code scorer runs the
 SQL and compares its number with the reference.
 
+How an Inspect eval is built, in about 25 lines: [`eval_minimal.py`](eval_minimal.py).
+
 </details>
 
 1. Open [`prompt.txt`](prompt.txt) in your editor and read it: this is the system prompt the task model gets.
@@ -738,6 +740,7 @@ terminal and set only your token. `uv run pytest -q` runs the tests against the 
 | [`prompt.txt`](prompt.txt) | The starting prompt. |
 | [`questions.py`](questions.py) | Prints the held-out questions only. |
 | [`gepa_minimal.py`](gepa_minimal.py) | GEPA in about 30 lines, to reuse in your own project. |
+| [`eval_minimal.py`](eval_minimal.py) | The Inspect eval in about 25 lines: cases, solver, scorer. |
 | [`data/cases.jsonl`](data/cases.jsonl), [`data/trips.csv`](data/trips.csv) | The cases with their splits and the table they ask about; `data/build.py` writes both. |
 | [`data/build.py`](data/build.py) | The script that makes the data and cases. |
 | [`task.py`](task.py) | The Inspect task: one split and the prompt from a file, scored by `scoring.py`. |

@@ -1,9 +1,5 @@
 """Step 3: dspy.GEPA rewrites the prompt, using the train and val cases only. The test cases are never loaded here.
 
-To reuse GEPA in your own project, start from gepa_minimal.py (about 30 lines). This file runs the same method and
-adds what the tutorial needs: the course cost limits, retries with plain messages, stop rules and logs. The
-GatewayEngine, GatewayLM, StopBeforeBudget, AbortOnError and BestOnVal classes below are for the course only.
-
     uv run python optimize.py                      # reads prompt.txt, writes prompt.optimized.txt
     uv run python optimize.py --max-metric-calls 12 --budget-cad 0.01
 
