@@ -131,8 +131,14 @@ SQL and compares its number with the reference.
 </details>
 
 1. Open [`prompt.txt`](prompt.txt) in your editor and read it: this is the system prompt the task model gets.
-2. In your editor, open [`data/cases.jsonl`](data/cases.jsonl) and read the `question` of three or four rows whose `split` is
-   `test`. These are the held-out cases the eval runs.
+2. In the terminal, in the `evals-gepa` folder, print the held-out questions with [`questions.py`](questions.py):
+
+   ```bash
+   uv run python questions.py
+   ```
+
+   You should see the 12 questions the eval runs, one per line. Do not open `data/cases.jsonl` yet: it also holds the
+   reference answers, which you read in Step 2.
 3. **Predict:** In your notes, write down whether you expect the starting prompt to pass below half, about half, or more than half
    of the held-out cases. What kind of question do you think might fail, given what the prompt says and does not
    say about the table?
@@ -453,7 +459,7 @@ GEPA uses GPT-6 Luna to propose prompt changes. The task model answers the held-
 
 </details>
 
-In your editor, read `prompt.optimized.txt` and your Step 2 failure names in your notes. Read the `test` rows in [`data/cases.jsonl`](data/cases.jsonl); these are the held-out cases.
+In your editor, read `prompt.optimized.txt` and your Step 2 failure names in your notes.
 
 Each course key may make 100 `gpt-6-luna` calls this week, until Sunday, November 22. [`budget.py`](budget.py) shows the upper bound on reflection calls before you run GEPA.
 
@@ -701,6 +707,7 @@ terminal and set only your token. `uv run pytest -q` runs the tests against the 
 |---|---|
 | [`tutorial.ipynb`](tutorial.ipynb) | The same steps as notebook cells. |
 | [`prompt.txt`](prompt.txt) | The starting prompt. |
+| [`questions.py`](questions.py) | Prints the held-out questions only. |
 | [`data/cases.jsonl`](data/cases.jsonl), [`data/trips.csv`](data/trips.csv) | The cases with their splits and the table they ask about; `data/build.py` writes both. |
 | [`data/build.py`](data/build.py) | The script that makes the data and cases. |
 | [`task.py`](task.py) | The Inspect task: one split and the prompt from a file, scored by `scoring.py`. |

@@ -18,7 +18,8 @@ tool results.
 2. Clone your team repository. Check that it contains `docs/proposal.md` and `.mcp.json.example`.
 3. Have Claude Code or Kiro available on your laptop.
 4. Open your team repository on GitHub and find the issue "Your course MCP tokens". Copy the token next to your
-   name. The token is yours only. Do not paste it into a file, a commit or a chat.
+   name. The token is yours only. Keep it out of team-repo files, commits and chats; section 2 shows the one local setting
+   that holds it.
 
 ## 2. Set up (once)
 
@@ -103,7 +104,7 @@ assistant  --reads configuration-->  MCP servers
 ```
 
 When your assistant starts, it reads the configuration file, connects to each server the file names, and asks
-each server for its list of tools. The course server needs your token; the AWS Knowledge server is public.
+each server for its list of tools.
 
 </details>
 
@@ -161,8 +162,8 @@ files and returns file paths and passages, and the assistant writes its reply fr
 </details>
 
 1. **Predict:** using the tool list on the `✓ tools:` line the setup check printed in the terminal in the `mcp`
-   folder, write down for each question whether the assistant will call a tool, which tool it will call, and what
-   kind of course file it will name.
+   folder, write down for each question whether the assistant will call a tool, and what kind of course file it will
+   name.
 2. In your assistant's chat, ask each question separately:
 
    > Using only the course MCP, why does sorting a Parquet file by a column help queries that filter on that column? Name the course file you used.
@@ -201,13 +202,12 @@ assistant  --get_kb_doc(path)-->  course MCP server
            <--document or error--  course MCP server
 ```
 
-`get_kb_doc` fetches one whole file by its path. A path that exists returns the document and a made-up path
-returns an error, so a cited path you can open is one the tool really returned.
+`get_kb_doc` requests one course file by its path.
 
 </details>
 
-1. In your assistant's chat, choose a file path named in Step 2. Predict what `get_kb_doc` will return for that path
-   and what it will return for a path the assistant made up.
+1. In your notes, pick a file path the assistant named in Step 2. **Predict:** what will `get_kb_doc` return for
+   that path, and what will it return for a path the assistant made up?
 2. In your assistant's chat, ask: "Call get_kb_doc on that file path and show me its first three lines." You should
    see the document in the chat if the path is real.
 3. Make up a different course file path and ask the assistant in the chat to call `get_kb_doc` on it. You should see
@@ -239,8 +239,8 @@ them. It reports what the tools returned; you decide what to change in your prop
 
 </details>
 
-1. In your editor, open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. You should see
-   those sections in the editor. If the file is missing, ask a TA.
+1. In your editor, open `docs/proposal.md` in your team repo and read sections 1 to 7, including the claims about
+   AWS services and costs. You should see those sections in the editor. If the file is missing, ask a TA.
 2. Before sending the prompt, write down in your notes which AWS claims in your proposal you expect the course files to cover
    and which you expect only the AWS docs to cover.
 3. In your assistant's chat, give your assistant the following user message:
@@ -270,10 +270,7 @@ them. It reports what the tools returned; you decide what to change in your prop
       in resources.md (Lambda concurrency, budget, Region).
    ```
 
-   You should see a reply in the chat. Most of your section 4 numbers are your own measurements. The course files
-   cannot check your dataset numbers, so expect those rows to say "ours". If a row in the chat says "not found",
-   check the number in `docs/proposal.md` in your editor to see whether it is yours. For DynamoDB, SQS and other
-   services the course files do not cover, the AWS Knowledge rows are the check.
+   You should see a claim table in the chat. Use its source column in the next actions.
 
 4. In your assistant's chat, look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and
    a short list of "differs" rows. You should see the tool calls, table and list in the chat. If every row
@@ -288,6 +285,10 @@ them. It reports what the tools returned; you decide what to change in your prop
 
 <details>
 <summary>Check your predictions</summary>
+
+Most of your section 4 numbers are your own measurements, which the course files cannot check, so those rows say
+"ours". A "not found" row is often one of them: check the number in `docs/proposal.md`. For DynamoDB, SQS and other
+services the course files do not cover, the AWS Knowledge rows are the check.
 
 Compare the "ours", "not found" and "differs" rows with the kinds of claim you predicted. Your own dataset numbers
 are "ours", and your proposal may have zero "differs" rows. A tool result supplies a source for you to inspect, while the assistant's comparison still needs
