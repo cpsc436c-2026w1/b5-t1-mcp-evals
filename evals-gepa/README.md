@@ -403,7 +403,7 @@ delete it, `uv sync` rebuilds it. Keep your token: the project uses it.
 
 ## If you fall behind
 
-Run `uv run python run_all.py`. It does the setup check and Steps 1, 3, 5 and 6. Then do Steps 2 and 4 by
+If you fall behind, ask a TA which numbered steps to prioritize. Do Steps 2 and 4 before the next run. by
 reading the runs in `uv run inspect view` and comparing the prompt files.
 
 ## Practise without a token

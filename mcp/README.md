@@ -56,7 +56,7 @@ The setting is stored on your laptop only. Do not commit or share the file or th
 terminal and editor so they read the setting. If the editor still does not see the token, quit the editor. In a
 terminal where the token is set, start the editor again. For VS Code, run `code .` in your team repo root.
 
-In the same terminal, go to the tutorial repo root and run the check from its `mcp` folder:
+In the terminal where you set the token, go to the tutorial repo root—the folder containing `mcp/`. You should see that folder. From there, run:
 
 ```bash
 cd mcp
@@ -108,7 +108,7 @@ assistant  --reads configuration-->  MCP servers
 
    If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
 
-3. Run `git status`. You should not see `.mcp.json` in the list: it is git-ignored and stays on your laptop. If you
+3. Run `git status`. Neither `.mcp.json` nor `.kiro/settings/mcp.json` should appear; both must stay on your laptop. If either appears, stop and ask a TA. Never put the token in these files.: it is git-ignored and stays on your laptop. If you
    see it, stop and ask a TA. Never put the token itself in `.mcp.json`.
 4. Start your assistant with the token set:
 
@@ -217,15 +217,15 @@ proposal claims  -->  assistant  --query_kb-->  course files
    ```
 
    Most of your section 4 numbers are your own measurements. The course files cannot check your dataset numbers, so
-   expect those rows to say "ours", or "not found" if the assistant skips the label. For DynamoDB, SQS and other
+   expect those rows to say "ours". If one says "not found", check whether the number is yours. For DynamoDB, SQS and other
    services the course files do not cover, the AWS Knowledge rows are the check.
 
 4. Look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and a short list of "differs"
    rows. The assistant makes many tool calls for one proposal, so the step can take 5 to 15 minutes. If every row
    says "not found" and you saw no tool calls, the tools did not run. Return to Step 1 and check the connection.
 5. For each "differs" row, read the source yourself. Fix `docs/proposal.md`, or open an issue in your team repo
-   that quotes the claim, links the source and says why your proposal is right. A "not found" row about an AWS service means
-   the course files do not cover it: read the AWS page yourself. A row marked "ours" needs no source; say in the
+   that quotes the claim, links the source and says why your proposal is right. A "not found" AWS-service row lacks support from
+   the tool results: read the AWS page yourself. A row marked "ours" needs no source; say in the
    proposal how you measured it.
 
 <details>
