@@ -206,6 +206,9 @@ def main(argv: list[str] | None = None) -> int:
         d = result.detailed_results
         scores = [round(s, 3) for s in d.val_aggregate_scores]
         summary = f"candidates {len(scores)}; val scores {scores}; best {d.best_idx}"
+        if d.best_idx == 0:
+            print("GEPA found no prompt better than your starting prompt on the val cases; "
+                  "prompt.optimized.txt is your starting prompt. Run this step again, or see logs/gepa-candidates.md.")
         _write_candidates(a.out, d, scores)
     else:
         best = best_seen.best[1] or seed_prompt

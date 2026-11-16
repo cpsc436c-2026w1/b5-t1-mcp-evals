@@ -60,7 +60,9 @@ class GatewayError(SystemExit):
 
 
 def base_url() -> str:
-    return (os.environ.get("COURSE_GATEWAY_URL", "").strip() or DEFAULT_URL).rstrip("/")
+    url = os.environ.get("COURSE_GATEWAY_URL", "").strip() or os.environ.get("GATEWAY_URL", "").strip()  # L17 used GATEWAY_URL
+    url = url or DEFAULT_URL
+    return (url if url.rstrip("/").endswith("/v1") else url.rstrip("/") + "/v1").rstrip("/")
 
 
 def task_model() -> str:
@@ -73,7 +75,10 @@ def reflector() -> str:
 
 def key_name() -> str:
     """The variable the key comes from: LLM_API_KEY when it is set, else KB_MCP_TOKEN. The key itself is never printed."""
-    return "LLM_API_KEY" if os.environ.get("LLM_API_KEY", "").strip() else "KB_MCP_TOKEN"
+    for name in ("LLM_API_KEY", "KB_MCP_TOKEN", "COURSE_MCP_TOKEN"):  # KB_MCP_TOKEN is the course name; L17 used COURSE_MCP_TOKEN
+        if os.environ.get(name, "").strip():
+            return name
+    return "KB_MCP_TOKEN"
 
 
 def token() -> str:
@@ -159,7 +164,7 @@ def plain(e: Exception, model: str = "") -> str:
     if isinstance(e, openai.APIStatusError) and e.status_code in (502, 503, 504):
         return f"{e.status_code}: the model behind the gateway did not answer, after {RETRIES_502} retries. Try again in a minute."
     if isinstance(e, openai.APITimeoutError):
-        return (f"the model took longer than 90 s to answer, after {RETRIES_502} retries. The gateway may be busy: "
+        return (f"the model took longer than 280 s to answer, after {RETRIES_502} retries. The gateway may be busy: "
                 "wait a minute and run the step again.")
     if isinstance(e, openai.APIConnectionError):
         return f"no connection to the gateway at {base_url()}. Check your Wi-Fi, then COURSE_GATEWAY_URL if you set it."

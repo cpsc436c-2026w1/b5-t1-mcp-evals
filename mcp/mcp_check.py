@@ -155,7 +155,7 @@ def unwrap(e: BaseException) -> BaseException:
 
 
 def main() -> None:
-    token = os.environ.get("KB_MCP_TOKEN", "").strip()
+    token = (os.environ.get("KB_MCP_TOKEN", "") or os.environ.get("COURSE_MCP_TOKEN", "")).strip()  # L17 used COURSE_MCP_TOKEN
     if not token:
         fail(
             "KB_MCP_TOKEN is not set in this terminal.\n"

@@ -46,4 +46,4 @@ def test_timeout_has_its_own_message():
     import openai
 
     e = openai.APITimeoutError(request=httpx.Request("POST", "http://x"))
-    assert "longer than 90 s" in gateway.plain(e)
+    assert "longer than 280 s" in gateway.plain(e)  # the client timeout in gateway.client()
