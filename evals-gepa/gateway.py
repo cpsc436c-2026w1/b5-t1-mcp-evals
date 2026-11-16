@@ -30,7 +30,7 @@ ALLOWED = (WORKER, REFLECTOR, LUNA, "qwen3-embedding-0.6b")
 PRICES = {WORKER: (0.05, 0.10), REFLECTOR: (0.10, 0.20), LUNA: (0.145, 0.725), "qwen3-embedding-0.6b": (0.0, 0.0)}
 
 WORKER_MAX_TOKENS = 1024       # caps the cost of one worker reply (thinking included)
-REFLECTOR_MAX_TOKENS = 4096    # caps the cost of one reflection reply
+REFLECTOR_MAX_TOKENS = int(os.environ.get("REFLECTOR_MAX_TOKENS", "16384"))  # cap on one reflection reply; a thinking model needs room (the course gateway clamps to 8192)
 RETRIES_502 = 3                # the gateway sometimes returns 502 from upstream
 CONCURRENCY = 4                # calls in flight at once, in the eval and in GEPA
 
@@ -157,7 +157,7 @@ def client():
     if _client is None or _client_for != want:
         from openai import OpenAI
 
-        _client, _client_for = OpenAI(base_url=want[0], api_key=want[1], max_retries=0, timeout=90), want
+        _client, _client_for = OpenAI(base_url=want[0], api_key=want[1], max_retries=0, timeout=280), want
     return _client
 
 
@@ -234,5 +234,5 @@ def inspect_model(model: str | None = None):
 
     model = model or task_model()
     cfg = GenerateConfig(max_tokens=WORKER_MAX_TOKENS, temperature=sampling(model, 0).get("temperature"),
-                         max_retries=RETRIES_502, timeout=90, max_connections=CONCURRENCY)
+                         max_retries=RETRIES_502, timeout=280, max_connections=CONCURRENCY)
     return get_model(f"openai-api/course/{model}", base_url=base_url(), api_key=token(), config=cfg)
