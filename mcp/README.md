@@ -1,6 +1,6 @@
 # B5T1 part A: connect to the course MCP server
 
-In this part of the tutorial, about 20 minutes, you connect your coding assistant to the course MCP server. You test
+In this part of the tutorial, you connect your coding assistant to the course MCP server. You test
 its tools and use the course files to check claims in your project proposal.
 
 L17 introduced MCP (Model Context Protocol), a standard way for an AI app to use tools, data and prompt templates
@@ -20,7 +20,7 @@ tool results.
 4. Open your team repository on GitHub and find the issue "Your course MCP tokens". Copy the token next to your
    name. The token is yours only. Do not paste it into a file, a commit or a chat.
 
-## 2. Set up (once, about 5 minutes)
+## 2. Set up (once)
 
 An environment variable is a named setting that a terminal and the programs started from it can read. Set
 `KB_MCP_TOKEN` in the terminal you will use for the tutorial. On Windows, use PowerShell, not Command Prompt
@@ -91,10 +91,15 @@ Each step has a prediction to write down first. Do the actions, then open the ch
 
 ### Step 1: connect your assistant
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 assistant  --reads configuration-->  MCP servers
            --tool calls----------->  course MCP server
 ```
+
+</details>
 
 1. Before connecting, write down which servers you expect your assistant to list as connected. What do you expect
    the list to show for `436c` if the assistant starts in a window where the token is not set?
@@ -108,8 +113,7 @@ assistant  --reads configuration-->  MCP servers
 
    If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
 
-3. Run `git status`. Neither `.mcp.json` nor `.kiro/settings/mcp.json` should appear; both must stay on your laptop. If either appears, stop and ask a TA. Never put the token in these files.: it is git-ignored and stays on your laptop. If you
-   see it, stop and ask a TA. Never put the token itself in `.mcp.json`.
+3. Run `git status`. Neither `.mcp.json` nor `.kiro/settings/mcp.json` should appear; both must stay on your laptop. If either appears, stop and ask a TA. Never put the token in these files.
 4. Start your assistant with the token set:
 
    - **Claude Code:** in the terminal where you set the token, at the team repo root, run `claude`. Approve the
@@ -131,10 +135,15 @@ can list and call the server's tools.
 
 ### Step 2: ask about course material
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 user message  -->  assistant  --query_kb-->  course files
                               <--tool result--  paths and passages
 ```
+
+</details>
 
 1. Predict for each question whether the assistant will call a tool, which tool it will call, and what kind of
    course file it will name.
@@ -166,10 +175,15 @@ its reply.
 
 ### Step 3: check a file path
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 assistant  --get_kb_doc(path)-->  course MCP server
            <--document or error--  course MCP server
 ```
+
+</details>
 
 1. Choose a file path named in Step 2. Predict what `get_kb_doc` will return for that path and what it will return
    for a path the assistant made up.
@@ -188,12 +202,17 @@ server instead of accepting the path from a reply alone.
 
 ### Step 4: check your project proposal
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 proposal claims  -->  assistant  --query_kb-->  course files
                                 --AWS Knowledge-->  AWS docs
                                 <--tool results--  sources
                  <--  claim table and differing claims
 ```
+
+</details>
 
 1. Open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. If the file is missing, ask a
    TA.
@@ -202,18 +221,28 @@ proposal claims  -->  assistant  --query_kb-->  course files
 3. Give your assistant the following user message:
 
    ```text
-   Read docs/proposal.md and the experiment files it links in section 6. Do not edit any file. Do not open .mcp.json.
-   List every number (rows, GB, time, money, counts) and every claim about how an AWS service works or what it costs.
-   Fetch 436c-student/index.md, resources.md and prices.md with get_kb_doc first. For each claim, search the course
-   MCP server with query_kb (domain "ops", course "436c"). For a fact about an AWS service, also search the AWS
-   Knowledge MCP server. Then give me one table with these columns:
-   claim | section | source found (course file path or AWS docs URL) | agrees / agrees if … / differs / ours / not found
-   Write "ours" for a number the team measured or estimated itself; check only that it is consistent with the other
-   numbers. Write "agrees if …" when the source adds a condition the proposal does not state.
-   Put only sources you actually got from a tool call in the third column. If no tool result supports a claim,
-   write "not found". After the table, list the "differs" rows again with one sentence each on what the source says.
-   Then list any two places where the proposal gives different numbers or times for the same thing, and any claim
-   that breaks a limit on resources.md (Lambda concurrency, budget, Region).
+   Read docs/proposal.md and the experiment files it links in section 6.
+   Do not edit any file. Do not open .mcp.json.
+
+   1. Fetch 436c-student/index.md, resources.md and prices.md with get_kb_doc.
+   2. List every number (rows, GB, time, money, counts)
+      and every claim about how an AWS service works or what it costs.
+   3. For each claim, search the course MCP server with query_kb
+      (domain "ops", course "436c").
+      For a fact about an AWS service, also search the AWS Knowledge MCP server.
+   4. Give me one table with these columns:
+      claim | section | source found (course file path or AWS docs URL) | verdict
+      Verdict is one of: agrees / agrees if … / differs / ours / not found.
+      - "ours": a number the team measured or estimated itself;
+        check only that it is consistent with the other numbers.
+      - "agrees if …": the source adds a condition the proposal does not state.
+      - Put only sources you actually got from a tool call in the third column.
+        If no tool result supports a claim, write "not found".
+   5. After the table, list the "differs" rows again,
+      with one sentence each on what the source says.
+   6. Then list any two places where the proposal gives different numbers
+      or times for the same thing, and any claim that breaks a limit
+      in resources.md (Lambda concurrency, budget, Region).
    ```
 
    Most of your section 4 numbers are your own measurements. The course files cannot check your dataset numbers, so
@@ -221,7 +250,7 @@ proposal claims  -->  assistant  --query_kb-->  course files
    services the course files do not cover, the AWS Knowledge rows are the check.
 
 4. Look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and a short list of "differs"
-   rows. The assistant makes many tool calls for one proposal, so the step can take 5 to 15 minutes. If every row
+   rows. The assistant makes many tool calls for one proposal, so this step takes a while. If every row
    says "not found" and you saw no tool calls, the tools did not run. Return to Step 1 and check the connection.
 5. For each "differs" row, read the source yourself. Fix `docs/proposal.md`, or open an issue in your team repo
    that quotes the claim, links the source and says why your proposal is right. A "not found" AWS-service row lacks support from

@@ -4,10 +4,10 @@ Connect a coding assistant to the course MCP server and use course files to chec
 the course LLM gateway with the same token, evaluate a prompt on held-out cases with Inspect, read and name the
 failures, let GEPA rewrite the prompt, evaluate again and price the session in CAD.
 
-| Part | Folder | Time |
-|---|---|---|
-| A: course MCP | [`mcp/`](mcp/README.md) | about 20 minutes |
-| B: course LLM gateway and prompt evaluation | [`evals-gepa/`](evals-gepa/README.md) | about 30 minutes |
+| Part | Folder |
+|---|---|
+| A: course MCP | [`mcp/`](mcp/README.md) |
+| B: course LLM gateway and prompt evaluation | [`evals-gepa/`](evals-gepa/README.md) |
 
 ## Before you start
 

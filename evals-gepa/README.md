@@ -1,8 +1,7 @@
 # B5T1 part B: evals and prompt optimisation
 
 In this part of the tutorial, you eval a prompt on held-out cases, read and name its failures, let GEPA rewrite the
-prompt, eval the new prompt on the same cases, and price the session. Allow about 30 minutes to read
-and compare the results. The commands take about two minutes of machine time in total.
+prompt, eval the new prompt on the same cases, and price the session.
 
 The task: a model writes one DuckDB SQL query to answer a question about 300 made-up taxi trips in
 [`data/trips.csv`](data/trips.csv). A case passes when the number the query returns matches the reference within
@@ -33,7 +32,7 @@ The notebook `tutorial.ipynb` has the same steps as cells; Section 2 explains ho
 2. Install uv from <https://docs.astral.sh/uv/getting-started/installation/>.
 3. Use the same tutorial repository as part A, cloned or downloaded from the course page.
 
-## 2. Set up (once, about 5 minutes)
+## 2. Set up (once)
 
 1. In a terminal, go into `evals-gepa`. If you are in `mcp`, run:
 
@@ -107,7 +106,8 @@ If a cell fails with `No module named 'inspect_ai'`, the kernel is not this fold
 in the tutorial repo's `evals-gepa` folder:
 
 ```bash
-uv run python -m ipykernel install --user --name evals-gepa --display-name "evals-gepa (.venv)"
+uv run python -m ipykernel install --user \
+  --name evals-gepa --display-name "evals-gepa (.venv)"
 ```
 
 In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It should import `inspect_ai`.
@@ -116,9 +116,14 @@ In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It 
 
 ### Step 1: run the starting prompt
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 prompt.txt + held-out test cases -> task model -> SQL -> code scorer
 ```
+
+</details>
 
 Inspect runs the task model once per case with `prompt.txt` as its system prompt. The code scorer runs the
 SQL and compares its number with the reference.
@@ -133,7 +138,7 @@ of the held-out cases. What kind of question do you think might fail?
    uv run inspect eval task.py -T split=test -T prompt=prompt.txt
    ```
 
-   You should see the test cases run in under a minute. A score appears at the end. Scroll it away or cover it;
+   You should see the test cases run. A score appears at the end. Scroll it away or cover it;
    you will read it in Step 2.
 
 <details>
@@ -146,9 +151,14 @@ code checks the result.
 
 ### Step 2: read and name the failures
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 held-out run -> failed cases -> failure names -> score
 ```
+
+</details>
 
 Read the failed cases before you look at the score, so the aggregate does not direct your error analysis. Treat
 the reference SQL and value as correct for this data. When the model's query differs from the reference SQL, name
@@ -191,9 +201,14 @@ and the score only tells you how many cases need it.
 
 ### Step 3: let GEPA rewrite the prompt
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 train cases -> failures -> reflection model -> prompt candidates -> val cases -> selected prompt
 ```
+
+</details>
 
 GEPA uses train cases and their feedback to propose and test prompt changes. It keeps a Pareto set of candidates
 that each do best on some examples and returns a prompt selected using val scores; GEPA does not read the test
@@ -209,8 +224,7 @@ failure names. Do you expect the new prompt to state, in its own words, a rule y
    ```
 
    You should see the estimate first, progress bars and log lines such as
-   `Iteration 1: Proposed new text for predict:` with each new prompt. The run takes about a minute, longer
-   when the gateway is busy.
+   `Iteration 1: Proposed new text for predict:` with each new prompt. It runs longer when the gateway is busy.
 2. At the end, look for lines like `candidates 2; val scores [...]; best 1`, the calls, and
    `cost ... CAD; ... s; wrote prompt.optimized.txt`. The file `prompt.optimized.txt` should now be next to
    `prompt.txt`.
@@ -227,9 +241,14 @@ without guaranteeing a better held-out score.
 
 ### Step 4: read the new prompt
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 prompt.txt + prompt.optimized.txt -> added lines -> failure names and data check
 ```
+
+</details>
 
 A prompt can improve an eval and still contain a rule that is not true of the data. Read the added lines before
 using the prompt and check their claims.
@@ -254,9 +273,14 @@ claims before using the prompt.
 
 ### Step 5: eval the new prompt
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 prompt.optimized.txt + same held-out test cases -> task model -> code scorer
 ```
+
+</details>
 
 Run the same eval on the same test split so the scores and individual cases can be compared. GEPA selected a
 prompt using val cases, so the held-out cases provide a separate check.
@@ -270,7 +294,7 @@ you expect the same or fewer failures.
    uv run inspect eval task.py -T split=test -T prompt=prompt.optimized.txt
    ```
 
-   The eval takes under a minute and ends with a score.
+   The eval ends with a score.
 2. Run `uv run inspect view` and open the browser link and newest run. You should see the new prompt's results.
    Read the question, reply and explanation for any case whose `sql_check` is 0. Does each remaining failure
    have a name in your table? If none fail, which of your names did the new prompt fix?
@@ -286,9 +310,14 @@ validation cases, so the held-out score checks questions outside that choice.
 
 ### Step 6: price the session
 
+<details>
+<summary>What happens when you do this step</summary>
+
 ```text
 upper-bound estimate -> eval and GEPA records -> actual cost comparison
 ```
+
+</details>
 
 Your token's term budget is 2 CAD. The course rule for one whole run (check, eval, GEPA, eval again) is less than
 0.10 CAD. `budget.py` prints an upper-bound estimate of the calls and their cost before any call. `optimize.py`
