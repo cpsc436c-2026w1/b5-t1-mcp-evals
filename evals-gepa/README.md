@@ -440,9 +440,222 @@ The train score can be higher, lower or about the same as the held-out score. GE
 optimisation, so their score says less about performance on new questions than a score on cases GEPA did not read.
 </details>
 
+**Try GPT-6 Luna as the reflection model.**
+
+<details>
+<summary>What happens when you do this step</summary>
+
+```text
+train cases -> GPT-6 Luna reflection -> selected prompt -> held-out eval
+```
+
+GEPA uses GPT-6 Luna to propose prompt changes. The task model answers the held-out cases so you can compare the selected prompt with the Qwen prompt.
+
+</details>
+
+In your editor, read `prompt.optimized.txt` and your Step 2 failure names in your notes. Read the `test` rows in [`data/cases.jsonl`](data/cases.jsonl); these are the held-out cases.
+
+Each course key may make 100 `gpt-6-luna` calls this week, until Sunday, November 22. [`budget.py`](budget.py) shows the upper bound on reflection calls before you run GEPA.
+
+**Predict:** In your notes, write down whether you expect the Luna prompt to differ from `prompt.optimized.txt`. Do you expect its held-out score to be higher, lower or about the same as the Qwen prompt’s score?
+
+1. In the terminal, in the `evals-gepa` folder, select the reflection model.
+
+   macOS or Linux:
+
+   ```bash
+   export GEPA_REFLECTOR=gpt-6-luna
+   ```
+
+   Windows PowerShell:
+
+   ```powershell
+   $env:GEPA_REFLECTOR = 'gpt-6-luna'
+   ```
+
+   You should see the terminal return to a prompt without an error.
+
+2. In the terminal, in the `evals-gepa` folder, run [`budget.py`](budget.py):
+
+   ```bash
+   uv run python budget.py
+   ```
+
+   You should see `reflection gpt-6-luna` and `gepa_reflect  at most   7 calls` in the terminal output. One GEPA run can use fewer calls than the upper bound.
+
+3. In the terminal, in the `evals-gepa` folder, run [`optimize.py`](optimize.py):
+
+   ```bash
+   uv run python optimize.py \
+     --out prompt.luna.txt
+   ```
+
+   You should see the model names, estimate and progress in the terminal. The final line should include `wrote prompt.luna.txt`. If the terminal reports that your key cannot use `gpt-6-luna`, follow the `PROBLEM:` message.
+
+4. In the terminal, in the `evals-gepa` folder, return the reflection model to the course default.
+
+   macOS or Linux:
+
+   ```bash
+   unset GEPA_REFLECTOR
+   ```
+
+   Windows PowerShell:
+
+   ```powershell
+   Remove-Item Env:GEPA_REFLECTOR
+   ```
+
+   You should see the terminal return to a prompt without an error.
+
+5. In your editor, open `prompt.luna.txt` and `prompt.optimized.txt` side by side. You should see the instructions selected by each GEPA run. Compare their wording and the failure names they address.
+
+6. In the terminal, in the `evals-gepa` folder, eval the current Qwen prompt on the test split:
+
+   ```bash
+   uv run inspect eval task.py \
+     -T split=test \
+     -T prompt=prompt.optimized.txt
+   ```
+
+   You should see `sql_test_prompt_optimized` and a `sql_check accuracy` score in the terminal box. In the same terminal and folder, eval the Luna prompt:
+
+   ```bash
+   uv run inspect eval task.py \
+     -T split=test \
+     -T prompt=prompt.luna.txt
+   ```
+
+   You should see `sql_test_prompt_luna` and a `sql_check accuracy` score in the terminal box.
+
+7. In the terminal, in the `evals-gepa` folder, run [`compare.py`](compare.py):
+
+   ```bash
+   uv run python compare.py
+   ```
+
+   You should see a row for each eval run. Compare the scores in the `prompt.luna.txt` row and the latest `prompt.optimized.txt` test row. The `held-out cases: before ..., after ...` line compares the starting and Qwen prompts, not the Luna prompt.
+
+<details>
+<summary>Check your predictions</summary>
+
+Compare the prompt wording and the held-out scores with your predictions. As “Compare another GEPA run” showed, prompts can vary with the seed and from run to run. One run per model is not a verdict on which reflection model is better. A fair comparison needs several runs per model with the same task model, data and budget.
+
+The 12 held-out cases make one case worth about 8 points of the score, so a small difference needs care. L17 uses held-out cases to check a prompt outside the cases GEPA used to select it. The eval uses the task model to answer the cases; it does not use `gpt-6-luna`.
+
+</details>
+
+**Use your own API key.**
+
+<details>
+<summary>What happens when you do this step</summary>
+
+```text
+your provider's models -> GEPA prompt -> held-out eval -> provider usage page
+```
+
+Your provider serves the task and reflection models. The kit can run the calls, but its course price list cannot price models outside that list.
+
+</details>
+
+Use this exercise if you have a key from another provider with an OpenAI-compatible API. OpenAI is one example; its base URL is `https://api.openai.com/v1`. In your editor, read `prompt.optimized.txt`, your Step 2 failure names in your notes, and the price list in [`gateway.py`](gateway.py). In a browser tab, check your provider’s model list for models your key can use as `TASK_MODEL` and `GEPA_REFLECTOR`.
+
+You pay your provider for these calls. The course gateway’s limits do not apply. The kit’s CAD stop covers only models in the course price list; for other models, the kit reports cost as unknown and does not stop the run on cost. Keep the key in your shell or the git-ignored `.env`; never put it in a file you commit. See [`.gitignore`](.gitignore).
+
+**Predict:** In your notes, write down whether you expect the kit’s cost lines to show a CAD amount for your chosen models. Do you expect the provider’s reflection model to write a prompt that addresses the same failure names as `prompt.optimized.txt`?
+
+1. In the terminal, in the `evals-gepa` folder, set the provider’s base URL and key, and choose models the provider serves for your key. Replace the model placeholders with names from your provider’s model list. The URL below is the OpenAI example; replace it if you use another provider.
+
+   macOS or Linux:
+
+   ```bash
+   export COURSE_GATEWAY_URL='https://api.openai.com/v1'
+   export LLM_API_KEY='paste-your-key'
+   export TASK_MODEL='provider-task-model'
+   export GEPA_REFLECTOR='provider-reflection-model'
+   ```
+
+   Windows PowerShell:
+
+   ```powershell
+   $env:COURSE_GATEWAY_URL = 'https://api.openai.com/v1'
+   $env:LLM_API_KEY = 'paste-your-key'
+   $env:TASK_MODEL = 'provider-task-model'
+   $env:GEPA_REFLECTOR = 'provider-reflection-model'
+   ```
+
+   You should see the terminal return to a prompt without an error. If you keep these four lines in a `.env` file in
+   `evals-gepa` instead (without `export`), start each command below with `uv run --env-file .env` in place of
+   `uv run`, for example `uv run --env-file .env python check_gateway.py`.
+
+2. In the terminal, in the `evals-gepa` folder, run [`check_gateway.py`](check_gateway.py):
+
+   ```bash
+   uv run python check_gateway.py
+   ```
+
+   You should see `✓ LLM_API_KEY is set`, the provider’s model list for your key, and a reply from the task model in the terminal. The check makes a call to your provider. If a model name needs changing, update the variable in the terminal and run the check again.
+
+3. In your notes, record that [`compare.py`](compare.py) adds every run in `logs/` to its total. Existing course runs remain in that folder, and calls to models outside the course price list count as zero in the kit’s total.
+
+4. In the terminal, in the `evals-gepa` folder, run [`optimize.py`](optimize.py):
+
+   ```bash
+   uv run python optimize.py \
+     --out prompt.own.txt
+   ```
+
+   You should see the estimate and progress in the terminal. At the end, you should see that GEPA wrote `prompt.own.txt`. For a model outside the course price list, the terminal reports that its cost is unknown and warns that the CAD stop does not cover its calls.
+
+5. In your editor, open `prompt.own.txt` and `prompt.optimized.txt` side by side. You should see the selected instructions from each run. Compare the instructions with the failure names in your Step 2 notes.
+
+6. In the terminal, in the `evals-gepa` folder, eval the new prompt on the test split:
+
+   ```bash
+   uv run inspect eval task.py \
+     -T split=test \
+     -T prompt=prompt.own.txt
+   ```
+
+   You should see a `sql_check accuracy` score in the terminal box.
+
+7. In the terminal, in the `evals-gepa` folder, run [`compare.py`](compare.py):
+
+   ```bash
+   uv run python compare.py
+   ```
+
+   You should see a `prompt.own.txt` row in the terminal output. Check the cost lines against your prediction and your note about the runs in `logs/`. In a browser tab, open your provider’s usage page and check what the provider charged for these calls. You should see the provider’s reported usage.
+
+8. In the terminal, in the `evals-gepa` folder, remove the provider variables to return to the course gateway.
+
+   macOS or Linux:
+
+   ```bash
+   unset COURSE_GATEWAY_URL LLM_API_KEY TASK_MODEL GEPA_REFLECTOR
+   ```
+
+   Windows PowerShell:
+
+   ```powershell
+   Remove-Item Env:COURSE_GATEWAY_URL, Env:LLM_API_KEY, `
+     Env:TASK_MODEL, Env:GEPA_REFLECTOR
+   ```
+
+   Alternatively, open a new terminal and set only your course token as in Section 2. You should see the terminal return to a prompt without an error.
+
+<details>
+<summary>Check your predictions</summary>
+
+Compare the instructions with your failure names and the cost lines with your prediction. For models outside the price list, the kit prints an unknown-cost warning and records their cost as zero; that does not mean the provider’s calls were free. The price list in [`gateway.py`](gateway.py) uses course gateway prices. Your provider bills in its own currency and at its own prices.
+
+The CAD stop cannot cover calls whose prices the kit does not know. Your provider’s usage page shows what you spent. L17’s bounded evaluator-optimizer loop needs a limit that accounts for the calls it makes.
+
+</details>
+
 ## 5. Clean up
 
-`logs/` and `prompt.optimized.txt` are yours to delete. Git ignores them. The `.venv` takes about 350 MB. If you
+`logs/`, `prompt.optimized.txt` and the other `prompt.*.txt` files you wrote are yours to delete. Git ignores them. The `.venv` takes about 350 MB. If you
 delete it, `uv sync` rebuilds it. Keep your token: the project uses it.
 
 ## 6. Recap and reflection
@@ -501,6 +714,6 @@ terminal and set only your token. `uv run pytest -q` runs the tests against the 
 | [`task.py`](task.py) | The Inspect task: one split and the prompt from a file, scored by `scoring.py`. |
 | [`scoring.py`](scoring.py) | Code that checks the SQL result against the reference. |
 | [`optimize.py`](optimize.py) | `dspy.GEPA` on train and val, with the cost meter. |
-| [`gateway.py`](gateway.py) | The gateway address, token, prices, retries and plain error messages. |
+| [`gateway.py`](gateway.py) | The gateway address, key, models, prices, retries and plain error messages. |
 | [`budget.py`](budget.py), [`compare.py`](compare.py), [`run_all.py`](run_all.py), [`check_gateway.py`](check_gateway.py) | The estimate, comparison, whole run and check. |
 | [`stand_in_gateway.py`](stand_in_gateway.py) | A local stand-in for practice without a token. |
