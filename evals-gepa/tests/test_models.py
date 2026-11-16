@@ -105,3 +105,26 @@ def test_gpt_task_model_eval_runs_through_inspect(stand_in, monkeypatch, tmp_pat
     log = inspect_eval(sql_cases(split="test", prompt="prompt.txt"), log_dir=str(tmp_path), display="none")[0]
     assert log.status == "success" and log.results.completed_samples == 12
     assert all("temperature" not in r for r in stand_in.requests)
+
+
+def test_switching_url_and_key_in_one_process_reaches_the_new_server(stand_in, monkeypatch, tmp_path, capsys):
+    """The notebook switches COURSE_GATEWAY_URL and LLM_API_KEY without restarting: the client and Inspect follow."""
+    import socket
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        port = s.getsockname()[1]
+    other = stand_in_gateway.serve(port, token="other-key", models=stand_in_gateway.MODELS + ["own-task"])
+    try:
+        assert check_gateway.main() == 0
+        inspect_eval(sql_cases(split="test", prompt="prompt.txt"), log_dir=str(tmp_path), display="none")
+        first = stand_in.chat_calls
+        monkeypatch.setenv("COURSE_GATEWAY_URL", f"http://127.0.0.1:{port}/v1")
+        monkeypatch.setenv("LLM_API_KEY", "other-key")
+        monkeypatch.setenv("TASK_MODEL", "own-task")
+        assert check_gateway.main() == 0
+        log = inspect_eval(sql_cases(split="test", prompt="prompt.txt"), log_dir=str(tmp_path), display="none")[0]
+        assert log.status == "success"
+        assert stand_in.chat_calls == first and other.calls_by_model.get("own-task") == 1 + 12
+    finally:
+        other.shutdown()

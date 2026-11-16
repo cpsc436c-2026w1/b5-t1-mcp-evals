@@ -238,7 +238,7 @@ failure names. Do you expect the new prompt to state, in its own words, a rule y
    uv run python optimize.py
    ```
 
-   You should see the estimate first in the terminal, followed by progress bars and log lines such as
+   You should see the model names and the estimate first in the terminal, followed by progress bars and log lines such as
    `Iteration 1: Proposed new text for predict:` with each new prompt.
 2. In the terminal output at the end, look for lines like `candidates 2; val scores [...]; best 1`, the calls, and
    a line with `cost ... CAD` that ends in `wrote prompt.optimized.txt`. In your editor's `evals-gepa` folder file list, you should
@@ -457,7 +457,7 @@ In your editor, read `prompt.optimized.txt` and your Step 2 failure names in you
 
 Each course key may make 100 `gpt-6-luna` calls this week, until Sunday, November 22. [`budget.py`](budget.py) shows the upper bound on reflection calls before you run GEPA.
 
-**Predict:** In your notes, write down whether you expect the Luna prompt to differ from `prompt.optimized.txt`. Do you expect its held-out score to be higher, lower or about the same as the Qwen prompt’s score?
+**Predict:** In your notes, write down whether you expect the Luna prompt to differ from `prompt.optimized.txt`. Do you expect its held-out score to be higher, lower or about the same as the Qwen prompt's score?
 
 1. In the terminal, in the `evals-gepa` folder, select the reflection model.
 
@@ -486,8 +486,7 @@ Each course key may make 100 `gpt-6-luna` calls this week, until Sunday, Novembe
 3. In the terminal, in the `evals-gepa` folder, run [`optimize.py`](optimize.py):
 
    ```bash
-   uv run python optimize.py \
-     --out prompt.luna.txt
+   uv run python optimize.py --out prompt.luna.txt
    ```
 
    You should see the model names, estimate and progress in the terminal. The final line should include `wrote prompt.luna.txt`. If the terminal reports that your key cannot use `gpt-6-luna`, follow the `PROBLEM:` message.
@@ -513,17 +512,13 @@ Each course key may make 100 `gpt-6-luna` calls this week, until Sunday, Novembe
 6. In the terminal, in the `evals-gepa` folder, eval the current Qwen prompt on the test split:
 
    ```bash
-   uv run inspect eval task.py \
-     -T split=test \
-     -T prompt=prompt.optimized.txt
+   uv run inspect eval task.py -T split=test -T prompt=prompt.optimized.txt
    ```
 
    You should see `sql_test_prompt_optimized` and a `sql_check accuracy` score in the terminal box. In the same terminal and folder, eval the Luna prompt:
 
    ```bash
-   uv run inspect eval task.py \
-     -T split=test \
-     -T prompt=prompt.luna.txt
+   uv run inspect eval task.py -T split=test -T prompt=prompt.luna.txt
    ```
 
    You should see `sql_test_prompt_luna` and a `sql_check accuracy` score in the terminal box.
@@ -539,7 +534,7 @@ Each course key may make 100 `gpt-6-luna` calls this week, until Sunday, Novembe
 <details>
 <summary>Check your predictions</summary>
 
-Compare the prompt wording and the held-out scores with your predictions. As “Compare another GEPA run” showed, prompts can vary with the seed and from run to run. One run per model is not a verdict on which reflection model is better. A fair comparison needs several runs per model with the same task model, data and budget.
+Compare the prompt wording and the held-out scores with your predictions. As "Compare another GEPA run" showed, prompts can vary with the seed and from run to run. One run per model is not a verdict on which reflection model is better. A fair comparison needs several runs per model with the same task model, data and budget.
 
 The 12 held-out cases make one case worth about 8 points of the score, so a small difference needs care. L17 uses held-out cases to check a prompt outside the cases GEPA used to select it. The eval uses the task model to answer the cases; it does not use `gpt-6-luna`.
 
@@ -558,13 +553,13 @@ Your provider serves the task and reflection models. The kit can run the calls, 
 
 </details>
 
-Use this exercise if you have a key from another provider with an OpenAI-compatible API. OpenAI is one example; its base URL is `https://api.openai.com/v1`. In your editor, read `prompt.optimized.txt`, your Step 2 failure names in your notes, and the price list in [`gateway.py`](gateway.py). In a browser tab, check your provider’s model list for models your key can use as `TASK_MODEL` and `GEPA_REFLECTOR`.
+Use this exercise if you have a key from another provider with an OpenAI-compatible API. OpenAI is one example; its base URL is `https://api.openai.com/v1`. In your editor, read `prompt.optimized.txt`, your Step 2 failure names in your notes, and the price list in [`gateway.py`](gateway.py). In a browser tab, check your provider's model list for models your key can use as `TASK_MODEL` and `GEPA_REFLECTOR`.
 
-You pay your provider for these calls. The course gateway’s limits do not apply. The kit’s CAD stop covers only models in the course price list; for other models, the kit reports cost as unknown and does not stop the run on cost. Keep the key in your shell or the git-ignored `.env`; never put it in a file you commit. See [`.gitignore`](.gitignore).
+You pay your provider for these calls. The course gateway's limits do not apply. The kit's CAD stop covers only models in the course price list; for other models, the kit reports cost as unknown and does not stop the run on cost. Keep the key in your shell or the git-ignored `.env`; never put it in a file you commit. See [`.gitignore`](.gitignore).
 
-**Predict:** In your notes, write down whether you expect the kit’s cost lines to show a CAD amount for your chosen models. Do you expect the provider’s reflection model to write a prompt that addresses the same failure names as `prompt.optimized.txt`?
+**Predict:** In your notes, write down whether you expect the kit's cost lines to show a CAD amount for your chosen models. Do you expect the provider's reflection model to write a prompt that addresses the same failure names as `prompt.optimized.txt`?
 
-1. In the terminal, in the `evals-gepa` folder, set the provider’s base URL and key, and choose models the provider serves for your key. Replace the model placeholders with names from your provider’s model list. The URL below is the OpenAI example; replace it if you use another provider.
+1. In the terminal, in the `evals-gepa` folder, set the provider's base URL and key, and choose models the provider serves for your key. Replace the model placeholders with names from your provider's model list. The URL below is the OpenAI example; replace it if you use another provider.
 
    macOS or Linux:
 
@@ -594,15 +589,14 @@ You pay your provider for these calls. The course gateway’s limits do not appl
    uv run python check_gateway.py
    ```
 
-   You should see `✓ LLM_API_KEY is set`, the provider’s model list for your key, and a reply from the task model in the terminal. The check makes a call to your provider. If a model name needs changing, update the variable in the terminal and run the check again.
+   You should see `✓ LLM_API_KEY is set`, the provider's model list for your key, and a reply from the task model in the terminal. The check makes a call to your provider. If a model name needs changing, update the variable in the terminal and run the check again.
 
-3. In your notes, record that [`compare.py`](compare.py) adds every run in `logs/` to its total. Existing course runs remain in that folder, and calls to models outside the course price list count as zero in the kit’s total.
+3. In your notes, record that [`compare.py`](compare.py) adds every run in `logs/` to its total. Existing course runs remain in that folder, and calls to models outside the course price list count as zero in the kit's total.
 
 4. In the terminal, in the `evals-gepa` folder, run [`optimize.py`](optimize.py):
 
    ```bash
-   uv run python optimize.py \
-     --out prompt.own.txt
+   uv run python optimize.py --out prompt.own.txt
    ```
 
    You should see the estimate and progress in the terminal. At the end, you should see that GEPA wrote `prompt.own.txt`. For a model outside the course price list, the terminal reports that its cost is unknown and warns that the CAD stop does not cover its calls.
@@ -612,9 +606,7 @@ You pay your provider for these calls. The course gateway’s limits do not appl
 6. In the terminal, in the `evals-gepa` folder, eval the new prompt on the test split:
 
    ```bash
-   uv run inspect eval task.py \
-     -T split=test \
-     -T prompt=prompt.own.txt
+   uv run inspect eval task.py -T split=test -T prompt=prompt.own.txt
    ```
 
    You should see a `sql_check accuracy` score in the terminal box.
@@ -625,7 +617,7 @@ You pay your provider for these calls. The course gateway’s limits do not appl
    uv run python compare.py
    ```
 
-   You should see a `prompt.own.txt` row in the terminal output. Check the cost lines against your prediction and your note about the runs in `logs/`. In a browser tab, open your provider’s usage page and check what the provider charged for these calls. You should see the provider’s reported usage.
+   You should see a `prompt.own.txt` row in the terminal output. Check the cost lines against your prediction and your note about the runs in `logs/`. In a browser tab, open your provider's usage page and check what the provider charged for these calls. You should see the provider's reported usage.
 
 8. In the terminal, in the `evals-gepa` folder, remove the provider variables to return to the course gateway.
 
@@ -647,9 +639,9 @@ You pay your provider for these calls. The course gateway’s limits do not appl
 <details>
 <summary>Check your predictions</summary>
 
-Compare the instructions with your failure names and the cost lines with your prediction. For models outside the price list, the kit prints an unknown-cost warning and records their cost as zero; that does not mean the provider’s calls were free. The price list in [`gateway.py`](gateway.py) uses course gateway prices. Your provider bills in its own currency and at its own prices.
+Compare the instructions with your failure names and the cost lines with your prediction. For models outside the price list, the kit prints an unknown-cost warning and records their cost as zero; that does not mean the provider's calls were free. The price list in [`gateway.py`](gateway.py) uses course gateway prices. Your provider bills in its own currency and at its own prices.
 
-The CAD stop cannot cover calls whose prices the kit does not know. Your provider’s usage page shows what you spent. L17’s bounded evaluator-optimizer loop needs a limit that accounts for the calls it makes.
+The CAD stop cannot cover calls whose prices the kit does not know. Your provider's usage page shows what you spent. L17's bounded evaluator-optimizer loop needs a limit that accounts for the calls it makes.
 
 </details>
 
