@@ -24,6 +24,9 @@ The task: a model writes one DuckDB SQL query to answer a question about 300 mad
 
 The notebook `tutorial.ipynb` has the same steps as cells; Section 2 explains how to open it.
 
+> ⚠️ **Where commands run.** Run every command in a terminal on your laptop, in the tutorial repo's `evals-gepa` folder.
+> Use a browser tab on your laptop for `inspect view`, or use `tutorial.ipynb` with this folder's `.venv` kernel.
+
 ## 1. Before you start
 
 1. Complete part A, or have your course MCP token ready.
@@ -88,11 +91,26 @@ The notebook `tutorial.ipynb` has the same steps as cells; Section 2 explains ho
    token. A `429` can mean the token budget cannot cover the reserve for a call or the per-minute request limit
    has been reached.
 
-**Open the notebook (optional).** In VS Code, open `tutorial.ipynb`, choose **Select Kernel**, and select the
-`.venv` of this folder. Alternatively, in a terminal in this folder, run
-`uv run --with jupyterlab jupyter lab` and open `tutorial.ipynb`. If the kernel cannot import `inspect_ai`, it
-is not using this folder's `.venv`; choose that environment again. The README steps and the notebook cells are
-the same steps. Use either.
+**Open the notebook (optional).** The README steps and notebook cells are the same steps. Use either.
+
+In VS Code on your laptop, open `tutorial.ipynb`, choose **Select Kernel**, and select this folder's `.venv`.
+Alternatively, run the following in a terminal on your laptop, in the tutorial repo's `evals-gepa` folder:
+
+```bash
+uv run --with jupyterlab jupyter lab
+```
+
+In JupyterLab, open `tutorial.ipynb`. You should see the notebook cells.
+
+If a cell fails with `No module named 'inspect_ai'`, the kernel is not this folder's `.venv`. An older kernel named
+"Python 3" on your laptop can hide the correct environment. Run the following once in a terminal on your laptop,
+in the tutorial repo's `evals-gepa` folder:
+
+```bash
+uv run python -m ipykernel install --user --name evals-gepa --display-name "evals-gepa (.venv)"
+```
+
+In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It should import `inspect_ai`.
 
 ## 3. Steps
 
@@ -132,12 +150,15 @@ code checks the result.
 held-out run -> failed cases -> failure names -> score
 ```
 
-Read the cases before the score so the aggregate does not direct your error analysis. A failure name is short
-and says what to fix. Invent each name after reading a failed case, and reuse it when another case fails in the
-same way.
+Read the failed cases before you look at the score, so the aggregate does not direct your error analysis. Treat
+the reference SQL and value as correct for this data. When the model's query differs from the reference SQL, name
+what the query did differently.
 
-**Predict:** Write down whether you expect several failed cases to share a failure name, or each failure to need
-a different name.
+A failure name is short and says what to fix. After reading a failed case, invent a name for its failure. Reuse
+that name when another case fails in the same way.
+
+**Predict:** In your notes, write down whether you expect several failed cases to share a failure name or each
+failed case to need its own name.
 
 1. Start the viewer:
 
@@ -178,8 +199,8 @@ GEPA uses train cases and their feedback to propose and test prompt changes. It 
 that each do best on some examples and returns a prompt selected using val scores; GEPA does not read the test
 cases.
 
-**Predict:** Write down whether you expect the new prompt to address at least one of your failure names. Do you
-expect GEPA to consult the held-out cases?
+**Predict:** In your notes, write down whether you expect the new prompt to address none, some or all of your
+failure names. Do you expect the new prompt to state, in its own words, a rule you found in Step 2?
 
 1. Run:
 
@@ -270,13 +291,11 @@ upper-bound estimate -> eval and GEPA records -> actual cost comparison
 ```
 
 Your token's term budget is 2 CAD. The course rule for one whole run (check, eval, GEPA, eval again) is less than
-0.10 CAD. `budget.py` prints an upper-bound estimate of the calls and their cost before any call is made, and
-`optimize.py` printed the same kind of estimate at the start of Step 3. `compare.py` reads the records in `logs/`
-and reports what the calls actually cost.
+0.10 CAD. `budget.py` prints an upper-bound estimate of the calls and their cost before any call. `optimize.py`
+printed an estimate at the start of Step 3. `compare.py` reads `logs/` and reports the actual cost.
 
-**Predict:** Write down whether you expect the recorded total to be above or below the
-upper-bound estimate.
-Do you expect a few cents or less?
+**Predict:** In your notes, write down how far below the estimate you expect the recorded total to be: about the
+same, around half, or a small fraction. Do you expect the whole session to cost a few cents or less?
 
 1. Print the estimate again:
 

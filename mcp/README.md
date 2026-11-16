@@ -8,6 +8,10 @@ offered by another program. The course server searches lecture decks, tutorials 
 with their file paths. Your coding assistant is the host app: it runs tool calls against the server and receives
 tool results.
 
+> ⚠️ **Where commands run.** In a terminal on your laptop, use the tutorial repo's `mcp` folder for the check.
+> In a terminal on your laptop, use your team repo root to copy `.mcp.json.example`, run `git status`, and start Claude Code.
+> In your assistant's chat, enter the test questions and the proposal prompt.
+
 ## 1. Before you start
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you have not already.
@@ -37,20 +41,20 @@ $env:KB_MCP_TOKEN = 'paste-your-token-here'
 The commands do not print the token. The setting lasts for the current terminal window. The same token is the API
 key for the course LLM gateway in part B.
 
-If you start your assistant from an editor or an app icon (VS Code, the Kiro app), make the setting permanent.
-An app started from an icon does not read the settings of a terminal window:
+If you start your assistant from an editor or app icon, such as VS Code or the Kiro app, make the token setting
+permanent. An app started from an icon does not read the settings of a terminal window.
 
-- macOS: add the `export` line above to `~/.zshrc` (Linux with bash: `~/.bashrc`).
-- Windows: run this once in PowerShell, with your token in place of `paste-your-token-here` and with the double
-  quotes:
+- On macOS, add the `export` line above to `~/.zshrc`. On Linux with bash, add it to `~/.bashrc`.
+- On Windows, run the following once in PowerShell. Replace `paste-your-token-here` with your token and keep the
+  double quotes:
 
   ```powershell
   setx KB_MCP_TOKEN "paste-your-token-here"
   ```
 
-The setting is then stored on your laptop only. Never commit or share that file. Close and reopen the terminal and
-the editor so they read the new setting. If the editor still does not see the token, quit it and start it from a
-terminal where the token is set, for example `code .` for VS Code in your team repo root.
+The setting is stored on your laptop only. Do not commit or share the file or the token. Close and reopen your
+terminal and editor so they read the setting. If the editor still does not see the token, quit the editor. In a
+terminal where the token is set, start the editor again. For VS Code, run `code .` in your team repo root.
 
 In the same terminal, go to the tutorial repo root and run the check from its `mcp` folder:
 
@@ -92,8 +96,8 @@ assistant  --reads configuration-->  MCP servers
            --tool calls----------->  course MCP server
 ```
 
-1. Predict which servers your assistant will list as connected, and what you expect to see for `436c` if you start
-   the assistant from a window where the token is not set.
+1. Before connecting, write down which servers you expect your assistant to list as connected. What do you expect
+   the list to show for `436c` if the assistant starts in a window where the token is not set?
 2. Go to the root of your team repository, the folder containing `docs/` and `.mcp.json.example`. Copy the example
    for your assistant. The example names the servers and reads the token from `KB_MCP_TOKEN`; do not edit it.
 
@@ -101,6 +105,8 @@ assistant  --reads configuration-->  MCP servers
    |---|---|---|
    | Claude Code | `cp .mcp.json.example .mcp.json` | `Copy-Item .mcp.json.example .mcp.json` |
    | Kiro | `mkdir -p .kiro/settings && cp .mcp.json.example .kiro/settings/mcp.json` | `New-Item -ItemType Directory -Force .kiro\settings; Copy-Item .mcp.json.example .kiro\settings\mcp.json` |
+
+   If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
 
 3. Run `git status`. You should not see `.mcp.json` in the list: it is git-ignored and stays on your laptop. If you
    see it, stop and ask a TA. Never put the token itself in `.mcp.json`.
@@ -191,9 +197,8 @@ proposal claims  -->  assistant  --query_kb-->  course files
 
 1. Open `docs/proposal.md` in your team repo and check that it has sections 1 to 7. If the file is missing, ask a
    TA.
-2. Predict which kinds of claim in your proposal are likely to come back "not found" or "differs". Most of your
-   section 4 numbers are your own measurements, so expect them to come back as "ours". Predict which AWS claims
-   the course files cover and which only the AWS docs do.
+2. Before sending the prompt, write down which AWS claims in your proposal you expect the course files to cover
+   and which you expect only the AWS docs to cover.
 3. Give your assistant the following user message:
 
    ```text
@@ -211,8 +216,9 @@ proposal claims  -->  assistant  --query_kb-->  course files
    that breaks a limit on resources.md (Lambda concurrency, budget, Region).
    ```
 
-   Most "not found" rows are numbers about your own dataset, which the course files cannot check. For DynamoDB,
-   SQS and other services the course files do not cover, the AWS Knowledge rows are the check.
+   Most of your section 4 numbers are your own measurements. The course files cannot check your dataset numbers, so
+   expect those rows to say "ours", or "not found" if the assistant skips the label. For DynamoDB, SQS and other
+   services the course files do not cover, the AWS Knowledge rows are the check.
 
 4. Look for `get_kb_doc` and `query_kb` tool calls, a table with one row per claim, and a short list of "differs"
    rows. The assistant makes many tool calls for one proposal, so the step can take 5 to 15 minutes. If every row
