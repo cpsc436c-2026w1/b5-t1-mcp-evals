@@ -56,7 +56,7 @@ The setting is stored on your laptop only. Do not commit or share the file or th
 terminal and editor so they read the setting. If the editor still does not see the token, quit the editor. In a
 terminal where the token is set, start the editor again. For VS Code, run `code .` in your team repo root.
 
-In the terminal where you set the token, go to the tutorial repo root—the folder containing `mcp/`. You should see that folder. From there, run:
+In the terminal where you set the token, go to the tutorial repo root, the folder that contains `mcp/`. You should see that folder. From there, run:
 
 ```bash
 cd mcp
@@ -159,7 +159,7 @@ Lambda question names a file about Lambda or compute billing, such as `facts-lam
 `facts-compute-billing.md`, and a fact it quotes ends with a lecture tag such as `[L2]`. If the reply is about other
 services' prices only, ask: "Search again with query_kb for Lambda per-request billing."
 
-L15 and L16 defined a tool call as a reply that names a tool and its arguments instead of answering the user.
+L15 defined a tool call as a reply that names a tool and its arguments instead of answering the user.
 The coding assistant runs the call and sends the tool result back, so the model can use the returned passages in
 its reply.
 </details>

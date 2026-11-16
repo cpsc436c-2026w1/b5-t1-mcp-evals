@@ -23,10 +23,9 @@ def trips(n: int = 300, seed: int = 436) -> list[dict]:
         dist = round(rng.expovariate(1 / 3.0) + 0.2, 2)
         minutes = max(2, int(dist * rng.uniform(3, 6)))
         fare = round(3 + 2.5 * dist + 0.4 * minutes, 2)
-        # this company's own payment codes: 2 = credit card, 1 = cash, 3 = no charge, 4 = dispute
         pay = rng.choices([2, 1, 3, 4], weights=[70, 24, 4, 2])[0]
         tip = round(fare * rng.choice([0, 0.1, 0.15, 0.2, 0.25]), 2) if pay == 2 else 0.0
-        if rng.random() < 0.08:  # a voided trip: the fare is booked back as a negative amount and is not a trip
+        if rng.random() < 0.08:
             fare, tip = -fare, 0.0
         rows.append(dict(trip_id=i, pickup_datetime=pick.isoformat(sep=" "),
                          dropoff_datetime=(pick + timedelta(minutes=minutes)).isoformat(sep=" "),

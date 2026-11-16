@@ -14,7 +14,7 @@ The task: a model writes one DuckDB SQL query to answer a question about 300 mad
 - **Split:** a group of cases. GEPA learns from `train` (9 cases) and chooses between prompts with `val`
   (9 cases).
 - **Held-out:** kept apart from optimisation. The `test` split has 12 held-out cases; GEPA does not read them.
-- **Worker model:** `qwen3.6-35b-a3b`, the model that answers the cases.
+- **Task model:** `qwen3.6-35b-a3b`, the model that answers the cases.
 - **Reflection model:** `qwen3.8-27b`, the model that uses failures to propose prompt changes.
 - **Course LLM gateway:** a model gateway that passes calls to the models and counts their cost against your token.
 - **Eval:** a run of a prompt on the cases of a split, with a score for each case.
@@ -117,10 +117,10 @@ In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It 
 ### Step 1: run the starting prompt
 
 ```text
-prompt.txt + held-out test cases -> worker model -> SQL -> code scorer
+prompt.txt + held-out test cases -> task model -> SQL -> code scorer
 ```
 
-Inspect runs the worker model once per case with `prompt.txt` as its system prompt. The code scorer runs the
+Inspect runs the task model once per case with `prompt.txt` as its system prompt. The code scorer runs the
 SQL and compares its number with the reference.
 
 **Predict:** Write down whether you expect the starting prompt to pass below half, about half, or more than half
@@ -140,7 +140,7 @@ of the held-out cases. What kind of question do you think might fail?
 <summary>Check your predictions</summary>
 
 The score is the fraction of held-out cases that pass. Each case contributes the same share. In L15, an Inspect
-eval has a dataset, a solver and a scorer: here the cases supply inputs and targets, the worker supplies SQL, and
+eval has a dataset, a solver and a scorer: here the cases supply inputs and targets, the task model supplies SQL, and
 code checks the result.
 </details>
 
@@ -168,7 +168,7 @@ failed case to need its own name.
 
    Open the browser link it prints. You should see a list of runs.
 2. Open the newest run. Before looking at its score, click each case whose `sql_check` is 0. Read the question,
-   the worker model's reply and the explanation.
+   the task model's reply and the explanation.
 3. Fill in the table in your own words. Use the same name when cases fail in the same way. Add a row for every
    failed case.
 
@@ -255,7 +255,7 @@ claims before using the prompt.
 ### Step 5: eval the new prompt
 
 ```text
-prompt.optimized.txt + same held-out test cases -> worker model -> code scorer
+prompt.optimized.txt + same held-out test cases -> task model -> code scorer
 ```
 
 Run the same eval on the same test split so the scores and individual cases can be compared. GEPA selected a
@@ -403,8 +403,9 @@ delete it, `uv sync` rebuilds it. Keep your token: the project uses it.
 
 ## If you fall behind
 
-If you fall behind, ask a TA which numbered steps to prioritize. Do Steps 2 and 4 before the next run. by
-reading the runs in `uv run inspect view` and comparing the prompt files.
+Ask a TA which steps to do first. Always do Step 2 (read the failures) before Step 3 (GEPA), and Step 4 (read the
+new prompt) before Step 5 (evaluate again): the order is the point of the tutorial. If you are short of time after
+Step 2, `uv run python run_all.py` runs the remaining commands in one go; then do Step 4 by comparing the prompt files.
 
 ## Practise without a token
 
