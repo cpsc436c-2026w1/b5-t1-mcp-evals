@@ -123,10 +123,10 @@ In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It 
 prompt.txt + held-out test cases -> task model -> SQL -> code scorer
 ```
 
-</details>
-
 Inspect runs the task model once per case with `prompt.txt` as its system prompt. The code scorer runs the
 SQL and compares its number with the reference.
+
+</details>
 
 **Predict:** Write down whether you expect the starting prompt to pass below half, about half, or more than half
 of the held-out cases. What kind of question do you think might fail?
@@ -208,11 +208,11 @@ and the score only tells you how many cases need it.
 train cases -> failures -> reflection model -> prompt candidates -> val cases -> selected prompt
 ```
 
-</details>
-
 GEPA uses train cases and their feedback to propose and test prompt changes. It keeps a Pareto set of candidates
 that each do best on some examples and returns a prompt selected using val scores; GEPA does not read the test
 cases.
+
+</details>
 
 **Predict:** In your notes, write down whether you expect the new prompt to address none, some or all of your
 failure names. Do you expect the new prompt to state, in its own words, a rule you found in Step 2?
@@ -248,10 +248,10 @@ without guaranteeing a better held-out score.
 prompt.txt + prompt.optimized.txt -> added lines -> failure names and data check
 ```
 
-</details>
-
 A prompt can improve an eval and still contain a rule that is not true of the data. Read the added lines before
 using the prompt and check their claims.
+
+</details>
 
 **Predict:** Write down whether you expect every failure name in your table to be addressed, and whether you
 expect every added rule to be true of the data.
@@ -280,10 +280,10 @@ claims before using the prompt.
 prompt.optimized.txt + same held-out test cases -> task model -> code scorer
 ```
 
-</details>
-
 Run the same eval on the same test split so the scores and individual cases can be compared. GEPA selected a
 prompt using val cases, so the held-out cases provide a separate check.
+
+</details>
 
 **Predict:** Write down whether you expect the held-out score to be higher, lower, or about the same, and whether
 you expect the same or fewer failures.
