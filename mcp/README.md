@@ -101,10 +101,12 @@ assistant  --reads configuration-->  MCP servers
 
 </details>
 
-1. Before connecting, write down which servers you expect your assistant to list as connected. What do you expect
-   the list to show for `436c` if the assistant starts in a window where the token is not set?
-2. Go to the root of your team repository, the folder containing `docs/` and `.mcp.json.example`. Copy the example
-   for your assistant. The example names the servers and reads the token from `KB_MCP_TOKEN`; do not edit it.
+1. Go to the root of your team repository, the folder containing `docs/` and `.mcp.json.example`. Open
+   `.mcp.json.example` and read it: it names the servers your assistant will connect to and reads the token from
+   `KB_MCP_TOKEN`. Do not edit it.
+2. **Predict:** Write down which servers you expect your assistant to list as connected. What do you expect the
+   list to show for `436c` if the assistant starts in a window where the token is not set?
+3. Copy the example for your assistant:
 
    | Assistant | macOS or Linux | Windows PowerShell |
    |---|---|---|
@@ -113,14 +115,14 @@ assistant  --reads configuration-->  MCP servers
 
    If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
 
-3. Run `git status`. Neither `.mcp.json` nor `.kiro/settings/mcp.json` should appear; both must stay on your laptop. If either appears, stop and ask a TA. Never put the token in these files.
-4. Start your assistant with the token set:
+4. Run `git status`. Neither `.mcp.json` nor `.kiro/settings/mcp.json` should appear; both must stay on your laptop. If either appears, stop and ask a TA. Never put the token in these files.
+5. Start your assistant with the token set:
 
    - **Claude Code:** in the terminal where you set the token, at the team repo root, run `claude`. Approve the
      servers in `.mcp.json` when asked.
    - **Kiro:** make the token permanent (section 2), quit Kiro fully, then open Kiro again on the team repo root.
 
-5. Check the connection. In Claude Code, type `/mcp`. In Kiro, open the MCP servers view in the Kiro panel. You
+6. Check the connection. In Claude Code, type `/mcp`. In Kiro, open the MCP servers view in the Kiro panel. You
    should see `436c` and `aws-knowledge` with connected status. If `436c` is missing or failed, do not edit
    `.mcp.json`; ask a TA.
 
@@ -145,7 +147,8 @@ user message  -->  assistant  --query_kb-->  course files
 
 </details>
 
-1. Predict for each question whether the assistant will call a tool, which tool it will call, and what kind of
+1. **Predict:** using the tool list from your setup check, write down for each question whether the assistant will call a
+   tool, which tool it will call, and what kind of
    course file it will name.
 2. Ask the assistant each question separately:
 
@@ -268,8 +271,10 @@ key.
 
 ## 4. Extra exercises
 
-Ask the Parquet question from Step 2 without "Using only the course MCP". Predict whether the assistant will call
-a tool, then compare the chat with the earlier question.
+1. **Predict:** if you ask the Parquet question from Step 2 without the words "Using only the course MCP", will the
+   assistant call a tool?
+2. Ask the question without those words.
+3. Compare the chat with the one from Step 2: look for the tool call lines.
 
 <details>
 <summary>Check your prediction</summary>
@@ -321,7 +326,7 @@ Reflection:
 
 ## For TAs and the curious
 
-In the `mcp` folder, run the check's tests against `stand_in_server.py`:
+In the `mcp` folder, run the check's tests against [`stand_in_server.py`](stand_in_server.py):
 
 ```bash
 uv run pytest -q

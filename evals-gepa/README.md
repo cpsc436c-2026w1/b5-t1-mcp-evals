@@ -9,7 +9,7 @@ The task: a model writes one DuckDB SQL query to answer a question about 300 mad
 
 **Words used below**
 
-- **Case:** one question with its reference SQL and reference value, one line of `data/cases.jsonl`.
+- **Case:** one question with its reference SQL and reference value, one line of [`data/cases.jsonl`](data/cases.jsonl).
 - **Split:** a group of cases. GEPA learns from `train` (9 cases) and chooses between prompts with `val`
   (9 cases).
 - **Held-out:** kept apart from optimisation. The `test` split has 12 held-out cases; GEPA does not read them.
@@ -21,10 +21,10 @@ The task: a model writes one DuckDB SQL query to answer a question about 300 mad
 - **GEPA:** a prompt optimiser. Here `dspy.GEPA` uses train cases to propose and test changes and val cases to
   choose a prompt.
 
-The notebook `tutorial.ipynb` has the same steps as cells; Section 2 explains how to open it.
+The notebook [`tutorial.ipynb`](tutorial.ipynb) has the same steps as cells; Section 2 explains how to open it.
 
 > ⚠️ **Where commands run.** Run every command in a terminal on your laptop, in the tutorial repo's `evals-gepa` folder.
-> Use a browser tab on your laptop for `inspect view`, or use `tutorial.ipynb` with this folder's `.venv` kernel.
+> Use a browser tab on your laptop for `inspect view`, or use [`tutorial.ipynb`](tutorial.ipynb) with this folder's `.venv` kernel.
 
 ## 1. Before you start
 
@@ -92,14 +92,14 @@ The notebook `tutorial.ipynb` has the same steps as cells; Section 2 explains ho
 
 **Open the notebook (optional).** The README steps and notebook cells are the same steps. Use either.
 
-In VS Code on your laptop, open `tutorial.ipynb`, choose **Select Kernel**, and select this folder's `.venv`.
+In VS Code on your laptop, open [`tutorial.ipynb`](tutorial.ipynb), choose **Select Kernel**, and select this folder's `.venv`.
 Alternatively, run the following in a terminal on your laptop, in the tutorial repo's `evals-gepa` folder:
 
 ```bash
 uv run --with jupyterlab jupyter lab
 ```
 
-In JupyterLab, open `tutorial.ipynb`. You should see the notebook cells.
+In JupyterLab, open [`tutorial.ipynb`](tutorial.ipynb). You should see the notebook cells.
 
 If a cell fails with `No module named 'inspect_ai'`, the kernel is not this folder's `.venv`. An older kernel named
 "Python 3" on your laptop can hide the correct environment. Run the following once in a terminal on your laptop,
@@ -123,16 +123,18 @@ In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. It 
 prompt.txt + held-out test cases -> task model -> SQL -> code scorer
 ```
 
-Inspect runs the task model once per case with `prompt.txt` as its system prompt. The code scorer runs the
+Inspect runs the task model once per case with [`prompt.txt`](prompt.txt) as its system prompt. The code scorer runs the
 SQL and compares its number with the reference.
 
 </details>
 
-**Predict:** Write down whether you expect the starting prompt to pass below half, about half, or more than half
-of the held-out cases. What kind of question do you think might fail?
-
-1. Open `prompt.txt` in your editor and read it.
-2. Run the eval:
+1. Open [`prompt.txt`](prompt.txt) in your editor and read it: this is the system prompt the task model gets.
+2. Open [`data/cases.jsonl`](data/cases.jsonl) and read the `question` of three or four rows whose `split` is
+   `test`. These are the held-out cases the eval runs.
+3. **Predict:** Write down whether you expect the starting prompt to pass below half, about half, or more than half
+   of the held-out cases. What kind of question do you think might fail, given what the prompt says and does not
+   say about the table?
+4. Run the eval:
 
    ```bash
    uv run inspect eval task.py -T split=test -T prompt=prompt.txt
@@ -227,9 +229,9 @@ failure names. Do you expect the new prompt to state, in its own words, a rule y
    `Iteration 1: Proposed new text for predict:` with each new prompt. It runs longer when the gateway is busy.
 2. At the end, look for lines like `candidates 2; val scores [...]; best 1`, the calls, and
    `cost ... CAD; ... s; wrote prompt.optimized.txt`. The file `prompt.optimized.txt` should now be next to
-   `prompt.txt`.
+   [`prompt.txt`](prompt.txt).
 
-   The cost meter in `optimize.py` stops GEPA before any call that could take it past 0.05 CAD.
+   The cost meter in [`optimize.py`](optimize.py) stops GEPA before any call that could take it past 0.05 CAD.
 
 <details>
 <summary>Check your predictions</summary>
@@ -256,11 +258,11 @@ using the prompt and check their claims.
 **Predict:** Write down whether you expect every failure name in your table to be addressed, and whether you
 expect every added rule to be true of the data.
 
-1. Open `prompt.optimized.txt` and `prompt.txt` side by side. You should see the starting instructions and any
+1. Open `prompt.optimized.txt` and [`prompt.txt`](prompt.txt) side by side. You should see the starting instructions and any
    changes GEPA made.
 2. For each added line, write down which of your failure names it addresses. Note any name that the new prompt
    does not address.
-3. Open `data/build.py`, the script that made the data. Choose one rule GEPA wrote and check whether the script
+3. Open [`data/build.py`](data/build.py), the script that made the data. Choose one rule GEPA wrote and check whether the script
    supports it. Ask whether every added line is true of the data. Mark any claim you cannot verify.
 
 <details>
@@ -320,20 +322,19 @@ upper-bound estimate -> eval and GEPA records -> actual cost comparison
 </details>
 
 Your token's term budget is 2 CAD. The course rule for one whole run (check, eval, GEPA, eval again) is less than
-0.10 CAD. `budget.py` prints an upper-bound estimate of the calls and their cost before any call. `optimize.py`
-printed an estimate at the start of Step 3. `compare.py` reads `logs/` and reports the actual cost.
+0.10 CAD. [`budget.py`](budget.py) prints an upper-bound estimate of the calls and their cost before any call. [`optimize.py`](optimize.py)
+printed an estimate at the start of Step 3. [`compare.py`](compare.py) reads `logs/` and reports the actual cost.
 
-**Predict:** In your notes, write down how far below the estimate you expect the recorded total to be: about the
-same, around half, or a small fraction. Do you expect the whole session to cost a few cents or less?
-
-1. Print the estimate again:
+1. Print the estimate again with [`budget.py`](budget.py):
 
    ```bash
    uv run python budget.py
    ```
 
    You should see the upper-bound calls and cost for the whole run.
-2. Compare the recorded runs:
+2. **Predict:** In your notes, write down how far below this estimate you expect the recorded total to be: about
+   the same, around half, or a small fraction. Do you expect the whole session to cost a few cents or less?
+3. Compare the recorded runs with [`compare.py`](compare.py):
 
    ```bash
    uv run python compare.py
@@ -345,10 +346,10 @@ same, around half, or a small fraction. Do you expect the whole session to cost 
    `check: the after score is at least the before score on the held-out cases: yes` or ends in `NO`.
 
    Each Inspect eval also prints a `cost_cad` score rounded to three decimals, so it often shows `0.000`.
-   `optimize.py` prints GEPA's cost and records it in `logs/optimize.log`. The gateway check prints the cost
+   [`optimize.py`](optimize.py) prints GEPA's cost and records it in `logs/optimize.log`. The gateway check prints the cost
    of its own call.
 
-3. Compare the recorded total with the estimate. With 12 test cases, one case is about 8 points of the score;
+4. Compare the recorded total with the estimate. With 12 test cases, one case is about 8 points of the score;
    a small difference can come from chance.
 
 <details>
@@ -373,8 +374,9 @@ In PowerShell:
 Copy-Item prompt.optimized.txt prompt.first.txt
 ```
 
-Run `uv run python optimize.py --seed 1` and compare the new `prompt.optimized.txt` with `prompt.first.txt`.
-Which lines are the same, and which differ?
+**Predict:** will a second GEPA run with another seed write the same prompt, a similar one, or a different one?
+Then run `uv run python optimize.py --seed 1` and compare the new `prompt.optimized.txt` with `prompt.first.txt`:
+which lines are the same, and which differ?
 
 <details>
 <summary>Check your answer</summary>
@@ -438,7 +440,7 @@ Step 2, `uv run python run_all.py` runs the remaining commands in one go; then d
 
 ## Practise without a token
 
-`stand_in_gateway.py` is a local server that acts like the course LLM gateway, with canned answers and no
+[`stand_in_gateway.py`](stand_in_gateway.py) is a local server that acts like the course LLM gateway, with canned answers and no
 money charged. Start it in one terminal with `uv run python stand_in_gateway.py`. In a second terminal, set
 these two variables and run the steps:
 
