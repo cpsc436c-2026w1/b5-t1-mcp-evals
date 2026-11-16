@@ -44,6 +44,7 @@ def server_url():
 def run_check(url: str | None, token: str | None):
     env = {k: v for k, v in os.environ.items() if k not in ("KB_MCP_TOKEN", "KB_MCP_URL")}
     env["NO_PROXY"] = "127.0.0.1,localhost"
+    env["B5T1_NO_DOTENV"] = "1"  # a .env file in the repo must not change what the tests see
     if url:
         env["KB_MCP_URL"] = url
     if token is not None:

@@ -18,6 +18,8 @@ from mcp.client.streamable_http import streamable_http_client
 def _load_dotenv() -> None:
     """Read KEY=VALUE lines from a .env file next to this script or in the repo root, for variables not already set.
     The file is git-ignored. Your coding assistant does not read it: for part A's assistant, set the variable."""
+    if os.environ.get("B5T1_NO_DOTENV"):
+        return
     from pathlib import Path as _P
     here = _P(__file__).resolve().parent
     for f in (here / ".env", here.parent / ".env"):
