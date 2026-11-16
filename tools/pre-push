@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Runs both test suites before a push and stops the push if either fails.
+# Install once in your clone:  git config core.hooksPath tools
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+(cd mcp && uv run pytest -q) || { echo "pre-push: mcp tests failed, push stopped" >&2; exit 1; }
+(cd evals-gepa && uv run pytest -q) || { echo "pre-push: evals-gepa tests failed, push stopped" >&2; exit 1; }
