@@ -65,7 +65,7 @@ def print_estimate(e: dict | None = None) -> dict:
     for k, v in e["calls"].items():
         print(f"  {k:<13} at most {v:>3} calls, at most {e['cost_cad'].get(k, 0):.4f} CAD")
     print(f"  total         at most {e['total_calls']:>3} calls, at most {e['total_cad']:.4f} CAD "
-          f"(limit {RUN_LIMIT_CAD:.2f} CAD), about {e['worst_seconds'] / 60:.1f} minutes in the slow case")
+          f"(limit {RUN_LIMIT_CAD:.2f} CAD))
     print(f"  {e['total_calls']} calls in the whole run (plus retries) is fewer than the {RATE_PER_MIN} a minute a key may make.")
     return e
 
