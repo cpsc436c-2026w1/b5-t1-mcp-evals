@@ -8,10 +8,14 @@ cannot check where a statement came from.
 In a job, this is your organization's knowledge base: its documents, decisions and best practices. The course
 knowledge base plays that role here.
 
-**How MCP helps.** The course MCP server gives your assistant tools on the course knowledge base. You use two: `query_kb` searches
-it and returns passages with their file paths, and `get_kb_doc` opens one whole document by its path. In this part you
-connect the server (Step 1), get answers that cite the course knowledge base (Step 2), open the file behind an answer to check it
-(Step 3), and check the numbers and AWS claims in your proposal against the course knowledge base and the AWS docs (Step 4).
+**How MCP helps.** The course MCP server offers your assistant three tools for the course knowledge base:
+`query_kb` searches it and returns passages with their file paths, `get_kb_doc` opens one whole document by its path,
+and `list_kb_topics` lists what the knowledge base covers. MCP is how the assistant learns about these tools: when it
+connects, the server sends the list of tools with a description of each, and the assistant decides when to call
+one. Your team repo's `AGENTS.md` adds the rule for when: before stating a number or a rule about AWS, Spark or
+file formats, search the course server first. In this part you connect the server (Step 1), get answers that cite
+the course knowledge base (Step 2), open the document behind an answer to check it (Step 3), and check the numbers
+and AWS claims in your proposal against the course knowledge base and the AWS docs (Step 4).
 
 L17 introduced MCP (Model Context Protocol), a standard way for an AI app to use tools, data and prompt templates
 offered by another program. The course server searches lecture decks, tutorials and readings, and returns passages
