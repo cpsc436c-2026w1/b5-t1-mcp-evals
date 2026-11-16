@@ -115,6 +115,8 @@ Each step has a prediction to write down in your notes first. Do the actions. At
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You connect your assistant to the course MCP server, so it can search and open the course files instead of answering from memory.
+
 ```text
 assistant  --reads configuration-->  MCP servers
            --tool calls----------->  course MCP server
@@ -168,6 +170,8 @@ can list and call the server's tools.
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You ask about course material and watch the assistant search the course files, so its answer names the file it came from.
+
 ```text
 user message  -->  assistant  --query_kb-->  course files
                               <--tool result--  paths and passages
@@ -214,14 +218,12 @@ its reply.
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You open the file behind an answer and check that it says what the assistant claimed. A path the server does not have returns nothing, so a file you can open really exists.
+
 ```text
 assistant  --get_kb_doc(path)-->  course MCP server
            <--the whole file, or nothing--
 ```
-
-An answer is only as good as its source. In Step 2 the assistant named a course file; here you open that file
-through the server and check that it says what the assistant claimed. A path the server does not have returns
-nothing, so a file you can open is one that really exists in the course files.
 
 </details>
 
@@ -259,6 +261,8 @@ check a cited path yourself instead of trusting the reply.
 
 <details>
 <summary>What happens when you do this step</summary>
+
+**Goal:** You use the course files and the AWS docs to check the numbers and AWS claims in your proposal, so you can fix a wrong fact before staff feedback.
 
 ```text
 proposal claims  -->  assistant  --query_kb-->  course files

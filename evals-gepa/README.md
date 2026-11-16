@@ -122,6 +122,8 @@ In the notebook, choose the kernel `evals-gepa (.venv)`. Run the cell again. You
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You measure the starting prompt on held-out cases (questions it was not tuned on), so you have a baseline to improve on.
+
 ```text
 prompt.txt + held-out test cases -> task model -> SQL -> code scorer
 ```
@@ -165,13 +167,11 @@ code checks the result.
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You read each failed case and name what went wrong before you look at the score, so your fix targets real causes, not a number. Treat the reference SQL and value as correct for this data.
+
 ```text
 held-out run -> failed cases -> failure names -> score
 ```
-
-You read each failed case and name what went wrong before you look at the score, so the aggregate does not steer
-what you look for. Treat the reference SQL and value as correct for this data. When the model's query differs from
-the reference SQL, name what the query did differently.
 
 </details>
 
@@ -226,6 +226,8 @@ and the score only tells you how many cases need it.
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You let GEPA rewrite the prompt: a second model reads the failures on the training cases and proposes a better prompt.
+
 ```text
 train cases -> failures -> reflection model -> prompt candidates -> val cases -> selected prompt
 ```
@@ -269,6 +271,8 @@ without guaranteeing a better held-out score.
 <details>
 <summary>What happens when you do this step</summary>
 
+**Goal:** You read what GEPA wrote and check one rule against the data, because an optimiser can write a rule that fits its cases but is false.
+
 ```text
 prompt.txt + prompt.optimized.txt -> added lines -> failure names and data check
 ```
@@ -309,6 +313,8 @@ claims before using the prompt.
 
 <details>
 <summary>What happens when you do this step</summary>
+
+**Goal:** You measure the new prompt on the same held-out cases as Step 1, so before and after are a fair comparison.
 
 ```text
 prompt.optimized.txt + same held-out test cases -> task model -> code scorer
@@ -353,6 +359,8 @@ validation cases, so the held-out score checks questions outside that choice.
 
 <details>
 <summary>What happens when you do this step</summary>
+
+**Goal:** You see what the whole loop cost in CAD, against the 2 CAD your key has for the term.
 
 ```text
 upper-bound estimate -> eval and GEPA records -> actual cost comparison
