@@ -1,6 +1,6 @@
 # CPSC 436C B5T1: course MCP and prompt evaluation
 
-Connect a coding assistant to the course MCP server and use course files to check your project proposal. Then call
+Connect a coding assistant to the course MCP server and use the course knowledge base to check your project proposal. Then call
 the course LLM gateway with the same token, evaluate a prompt on held-out cases with Inspect, read and name the
 failures, let GEPA rewrite the prompt, evaluate again and price the session in CAD.
 

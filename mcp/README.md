@@ -8,7 +8,7 @@ cannot check where a statement came from.
 In a job, this is your organization's knowledge base: its documents, decisions and best practices. The course
 knowledge base plays that role here.
 
-**How MCP helps.** The course MCP server gives your assistant two tools on the course knowledge base: `query_kb` searches
+**How MCP helps.** The course MCP server gives your assistant tools on the course knowledge base. You use two: `query_kb` searches
 it and returns passages with their file paths, and `get_kb_doc` opens one whole document by its path. In this part you
 connect the server (Step 1), get answers that cite the course knowledge base (Step 2), open the file behind an answer to check it
 (Step 3), and check the numbers and AWS claims in your proposal against the course knowledge base and the AWS docs (Step 4).
@@ -328,7 +328,7 @@ them. It reports what the tools returned; you decide what to change in your prop
 
 Most of your section 4 numbers are your own measurements, which the course knowledge base cannot check, so those rows say
 "ours". A "not found" row is often one of them: check the number in `docs/proposal.md`. For DynamoDB, SQS and other
-services the course knowledge base do not cover, the AWS Knowledge rows are the check.
+services the course knowledge base does not cover, the AWS Knowledge rows are the check.
 
 Compare the "ours", "not found" and "differs" rows with the kinds of claim you predicted. Your own dataset numbers
 are "ours", and your proposal may have zero "differs" rows. A tool result supplies a source for you to inspect, while the assistant's comparison still needs
