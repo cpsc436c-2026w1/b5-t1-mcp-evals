@@ -1,14 +1,17 @@
 # B5T1 part A: connect to the course MCP server
 
 **Goal.** When you ask your coding assistant about course material, or ask it to check your project proposal, the
-answer should come from the course's own files, and you should be able to open the file an answer came from and see
+answer should come from the course knowledge base, and you should be able to open the document an answer came from and see
 that it says what the assistant claims. Without help, an assistant answers from what its model remembers, and you
 cannot check where a statement came from.
 
-**How MCP helps.** The course MCP server gives your assistant two tools on the course files: `query_kb` searches
-them and returns passages with their file paths, and `get_kb_doc` opens one whole file by its path. In this part you
-connect the server (Step 1), get answers that cite course files (Step 2), open the file behind an answer to check it
-(Step 3), and check the numbers and AWS claims in your proposal against the course files and the AWS docs (Step 4).
+In a job, this is your organization's knowledge base: its documents, decisions and best practices. The course
+knowledge base plays that role here.
+
+**How MCP helps.** The course MCP server gives your assistant two tools on the course knowledge base: `query_kb` searches
+it and returns passages with their file paths, and `get_kb_doc` opens one whole document by its path. In this part you
+connect the server (Step 1), get answers that cite the course knowledge base (Step 2), open the file behind an answer to check it
+(Step 3), and check the numbers and AWS claims in your proposal against the course knowledge base and the AWS docs (Step 4).
 
 L17 introduced MCP (Model Context Protocol), a standard way for an AI app to use tools, data and prompt templates
 offered by another program. The course server searches lecture decks, tutorials and readings, and returns passages
@@ -115,7 +118,7 @@ Each step has a prediction to write down in your notes first. Do the actions. At
 <details>
 <summary>What happens when you do this step</summary>
 
-**Goal:** You connect your assistant to the course MCP server, so it can search and open the course files instead of answering from memory.
+**Goal:** You connect your assistant to the course MCP server, so it can search and open the course knowledge base instead of answering from memory.
 
 ```text
 assistant  --reads configuration-->  MCP servers
@@ -170,10 +173,10 @@ can list and call the server's tools.
 <details>
 <summary>What happens when you do this step</summary>
 
-**Goal:** You ask about course material and watch the assistant search the course files, so its answer names the file it came from.
+**Goal:** You ask about course material and watch the assistant search the course knowledge base, so its answer names the file it came from.
 
 ```text
-user message  -->  assistant  --query_kb-->  course files
+user message  -->  assistant  --query_kb-->  course knowledge base
                               <--tool result--  paths and passages
 ```
 
@@ -193,7 +196,7 @@ files and returns file paths and passages, and the assistant writes its reply fr
 
    You should see a reply to each question in the chat.
 3. Look for the tool call in the chat. Claude Code shows `436c - query_kb (MCP)` with the query it sent. Kiro shows
-   the tool name and asks you to allow it. You should see replies that name course files and quote or paraphrase
+   the tool name and asks you to allow it. You should see replies that name course knowledge base files and quote or paraphrase
    their passages.
 4. If you do not see a tool call in the chat, the assistant answered from memory. Ask again in the chat: "Use the
    query_kb tool and show me the file paths it returned." You should see a tool call and the returned file paths
@@ -262,23 +265,23 @@ check a cited path yourself instead of trusting the reply.
 <details>
 <summary>What happens when you do this step</summary>
 
-**Goal:** You use the course files and the AWS docs to check the numbers and AWS claims in your proposal, so you can fix a wrong fact before staff feedback.
+**Goal:** You use the course knowledge base and the AWS docs to check the numbers and AWS claims in your proposal, so you can fix a wrong fact before staff feedback.
 
 ```text
-proposal claims  -->  assistant  --query_kb-->  course files
+proposal claims  -->  assistant  --query_kb-->  course knowledge base
                                 --AWS Knowledge-->  AWS docs
                                 <--tool results--  sources
                  <--  claim table and differing claims
 ```
 
-The assistant reads your proposal, searches the course files and the AWS docs for each claim, and compares
+The assistant reads your proposal, searches the course knowledge base and the AWS docs for each claim, and compares
 them. It reports what the tools returned; you decide what to change in your proposal.
 
 </details>
 
 1. In your editor, open `docs/proposal.md` in your team repo and read sections 1 to 7, including the claims about
    AWS services and costs. You should see those sections in the editor. If the file is missing, ask a TA.
-2. Before sending the prompt, write down in your notes which AWS claims in your proposal you expect the course files to cover
+2. Before sending the prompt, write down in your notes which AWS claims in your proposal you expect the course knowledge base to cover
    and which you expect only the AWS docs to cover.
 3. In your assistant's chat, give your assistant the following user message:
 
@@ -323,9 +326,9 @@ them. It reports what the tools returned; you decide what to change in your prop
 <details>
 <summary>Check your predictions</summary>
 
-Most of your section 4 numbers are your own measurements, which the course files cannot check, so those rows say
+Most of your section 4 numbers are your own measurements, which the course knowledge base cannot check, so those rows say
 "ours". A "not found" row is often one of them: check the number in `docs/proposal.md`. For DynamoDB, SQS and other
-services the course files do not cover, the AWS Knowledge rows are the check.
+services the course knowledge base do not cover, the AWS Knowledge rows are the check.
 
 Compare the "ours", "not found" and "differs" rows with the kinds of claim you predicted. Your own dataset numbers
 are "ours", and your proposal may have zero "differs" rows. A tool result supplies a source for you to inspect, while the assistant's comparison still needs
@@ -362,11 +365,11 @@ environment variable in your environment settings.
 
 - **You connected an assistant to MCP servers.** Configuration lets a host find servers. Projects can version
   server configuration for their assistants.
-- **You searched course files.** `query_kb` supplied passages and paths. An assistant can use tool results to
+- **You searched the course knowledge base.** `query_kb` supplied passages and paths. An assistant can use tool results to
   support a reply with sources.
 - **You checked a path.** `get_kb_doc` let you inspect a cited document. Checking a source helps you find an
   invented or incorrect citation.
-- **You reviewed proposal claims.** Course files and AWS docs gave you sources to compare with claims. You still
+- **You reviewed proposal claims.** The course knowledge base and the AWS docs gave you sources to compare with claims. You still
   decide whether to revise the proposal.
 - **You used a named token.** The server permits clients with tokens and logs calls by key. Audit logs help
   operators review tool use outside the tutorial.
