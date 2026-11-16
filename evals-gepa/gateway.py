@@ -19,6 +19,24 @@ import sys
 import threading
 import time
 
+
+def _load_dotenv() -> None:
+    """Read KEY=VALUE lines from a .env file next to this script or in the repo root, for variables not already set.
+    The file is git-ignored. Your coding assistant does not read it: for part A's assistant, set the variable."""
+    from pathlib import Path as _P
+    here = _P(__file__).resolve().parent
+    for f in (here / ".env", here.parent / ".env"):
+        if f.is_file():
+            for line in f.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip().removeprefix("export ").strip()
+                    os.environ.setdefault(k, v.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
 DEFAULT_URL = "https://oay6tcpsuv4gn5mubtlj7rnbl40gmrlv.lambda-url.ca-central-1.on.aws/v1"
 WORKER = "qwen3.6-35b-a3b"     # default task model: answers the cases (env TASK_MODEL)
 REFLECTOR = "qwen3.8-27b"      # default reflection model: reads failures, writes a new prompt (env GEPA_REFLECTOR)

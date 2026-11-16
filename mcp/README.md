@@ -42,6 +42,16 @@ $env:KB_MCP_TOKEN = 'paste-your-token-here'
 The commands do not print the token. The setting lasts for the current terminal window. The same token is the API
 key for the course LLM gateway in part B.
 
+**Or, for the scripts only: a `.env` file.** In your editor, create a file named `.env` in the tutorial repo root
+(the folder that contains `mcp/` and `evals-gepa/`) with one line:
+
+```text
+KB_MCP_TOKEN=paste-your-token-here
+```
+
+Git ignores this file. `mcp_check.py` and every script in part B read it when the variable is not set. Your coding
+assistant does not read it: for Step 1 you still need the environment variable above.
+
 If you start your assistant from an editor or app icon, such as VS Code or the Kiro app, make the token setting
 permanent. An app started from an icon does not read the settings of a terminal window.
 

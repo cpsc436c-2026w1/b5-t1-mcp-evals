@@ -14,6 +14,24 @@ import httpx
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
 
+
+def _load_dotenv() -> None:
+    """Read KEY=VALUE lines from a .env file next to this script or in the repo root, for variables not already set.
+    The file is git-ignored. Your coding assistant does not read it: for part A's assistant, set the variable."""
+    from pathlib import Path as _P
+    here = _P(__file__).resolve().parent
+    for f in (here / ".env", here.parent / ".env"):
+        if f.is_file():
+            for line in f.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip().removeprefix("export ").strip()
+                    os.environ.setdefault(k, v.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
 DEFAULT_URL = "https://kb-cloud-students.fly.dev/mcp"
 TEST_QUERY = "S3 storage classes"
 TIMEOUT_S = 30

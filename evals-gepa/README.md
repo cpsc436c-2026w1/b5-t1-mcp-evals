@@ -59,7 +59,8 @@ The notebook [`tutorial.ipynb`](tutorial.ipynb) has the same steps as cells; Sec
    $env:KB_MCP_TOKEN = 'paste-your-token'
    ```
 
-   Set the token again in each new terminal. Keep it private.
+   Set the token again in each new terminal, or put it in the `.env` file described in
+   [part A, section 2](../mcp/README.md#2-set-up-once): the scripts here read it. Keep it private.
 
 3. In the terminal, in the `evals-gepa` folder, install the packages:
 
