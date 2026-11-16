@@ -5,7 +5,7 @@
     uv run inspect view
 
 Two scores per case: `sql_check` (1 if the number the SQL returns matches the reference) and `cost_cad` (what the
-call cost, in CAD; its metric is the total for the run). The model is the course gateway's worker model."""
+call cost, in CAD; its metric is the total for the run). The model is TASK_MODEL (default qwen3.6-35b-a3b), at the address in gateway.py."""
 
 from __future__ import annotations
 
@@ -49,11 +49,11 @@ def sql_check():
 
 
 @scorer(metrics=[total()])
-def cost_cad():
+def cost_cad(model: str = ""):
     async def score(state: TaskState, target: Target) -> Score:
         u = state.output.usage
         t_in, t_out = (u.input_tokens, u.output_tokens) if u else (0, 0)
-        return Score(value=gateway.cad(gateway.WORKER, t_in, t_out), metadata={"tokens_in": t_in, "tokens_out": t_out})
+        return Score(value=gateway.cad(model, t_in, t_out), metadata={"tokens_in": t_in, "tokens_out": t_out})
     return score
 
 
@@ -63,8 +63,9 @@ def sql_cases(split: str = "test", prompt: str = "prompt.txt") -> Task:
     p = Path(prompt) if Path(prompt).is_absolute() else HERE / prompt
     if not p.exists():
         raise gateway.GatewayError(f"prompt file not found: {p}")
+    model = gateway.task_model()
     samples = [Sample(id=c["id"], input=c["question"], target=str(c["reference_value"]), metadata=c)
                for c in scoring.cases(split)]
     return Task(dataset=MemoryDataset(samples), solver=[prompt_from_file(p.read_text(encoding="utf-8")), generate()],
-                scorer=[sql_check(), cost_cad()], model=gateway.inspect_model(gateway.WORKER),
+                scorer=[sql_check(), cost_cad(model)], model=gateway.inspect_model(model),
                 metadata={"split": split, "prompt": p.name}, name=f"sql_{split}_{p.stem.replace('.', '_')}")

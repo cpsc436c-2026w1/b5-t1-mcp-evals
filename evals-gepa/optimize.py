@@ -10,7 +10,8 @@ Two small pieces keep it the same as the eval:
     task.py sends. (DSPy's default adapter would wrap it in its own field format.)
   - GatewayLM, a DSPy LM whose engine calls gateway.chat(), so every call goes through the cost meter, the retries
     and the plain error messages.
-Worker model answers the cases; reflection model reads the failures and writes a new prompt.
+Task model (env TASK_MODEL) answers the cases; reflection model (env GEPA_REFLECTOR) reads the failures and writes
+a new prompt. Their prices come from gateway.PRICES.
 Writes prompt.optimized.txt and logs/optimize.log."""
 
 from __future__ import annotations
@@ -71,9 +72,12 @@ class GatewayEngine:
 
 
 class GatewayLM(dspy.BaseLM):
+    """The engine sends what gateway.sampling() says; the temperature here is DSPy's record of it
+    (None for GPT and o-series models, which get the provider's default)."""
+
     def __init__(self, model: str, max_tokens: int, meter: gateway.Meter, role: str):
-        super().__init__(model=model, cache=False, temperature=0, max_tokens=max_tokens, num_retries=0,
-                         engine=GatewayEngine(model, max_tokens, meter, role))
+        super().__init__(model=model, cache=False, temperature=gateway.sampling(model, max_tokens).get("temperature"),
+                         max_tokens=max_tokens, num_retries=0, engine=GatewayEngine(model, max_tokens, meter, role))
 
 
 class PlainSQL(dspy.Adapter):
@@ -154,10 +158,15 @@ def main(argv: list[str] | None = None) -> int:
     seed_prompt = (HERE / a.prompt).read_text(encoding="utf-8")
     train, val = examples("train"), examples("val")
     e = budget.estimate(seed_prompt)
+    task_m, refl_m = gateway.task_model(), gateway.reflector()
+    print(f"models: task {task_m}, reflection {refl_m}")
     print(f"dspy.GEPA: train {len(train)} cases, val {len(val)} cases, at most {a.max_metric_calls} worker calls "
           f"(+ one last iteration), cost meter stops at {a.budget_cad:.4f} CAD.")
     print(f"estimate: at most {e['calls']['gepa_worker']} worker and {e['calls']['gepa_reflect']} reflection calls, "
           f"at most {e['cost_cad']['gepa_worker'] + e['cost_cad']['gepa_reflect']:.4f} CAD.")
+    for m in e["unknown"]:
+        print(f"cost unknown for {m}: not a course gateway price.")
+        print(f"WARNING: the cost meter does not count {m}'s calls, so the {a.budget_cad:.4f} CAD stop does not cover them.")
     try:
         gateway.token()  # a plain message now if the token is not set
     except gateway.GatewayError as ex:
@@ -166,8 +175,8 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.WARNING, format="%(message)s")
     logging.getLogger("dspy.teleprompt.gepa").setLevel(logging.INFO)  # one line per GEPA step, with each new prompt
     meter = gateway.Meter(a.budget_cad)
-    worker = GatewayLM(gateway.WORKER, gateway.WORKER_MAX_TOKENS, meter, "worker")
-    reflector = GatewayLM(gateway.REFLECTOR, gateway.REFLECTOR_MAX_TOKENS, meter, "reflect")
+    worker = GatewayLM(task_m, gateway.WORKER_MAX_TOKENS, meter, "worker")
+    reflector = GatewayLM(refl_m, gateway.REFLECTOR_MAX_TOKENS, meter, "reflect")
     program = SqlProgram(seed_prompt)
     best_seen = BestOnVal()
     gepa = dspy.GEPA(metric=metric, max_metric_calls=a.max_metric_calls, reflection_lm=reflector,

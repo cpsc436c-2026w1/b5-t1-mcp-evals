@@ -20,6 +20,8 @@ def stand_in(monkeypatch):
     monkeypatch.setenv("COURSE_GATEWAY_URL", f"http://127.0.0.1:{port}/v1")
     monkeypatch.setenv("KB_MCP_TOKEN", stand_in_gateway.TOKEN)
     monkeypatch.setenv("GATEWAY_BACKOFF_S", "0.01")
+    for v in ("LLM_API_KEY", "TASK_MODEL", "GEPA_REFLECTOR"):
+        monkeypatch.delenv(v, raising=False)
     monkeypatch.setattr(gateway, "_client", None)
     yield srv
     srv.shutdown()

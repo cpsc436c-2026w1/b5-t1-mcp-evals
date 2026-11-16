@@ -3,3 +3,5 @@ logs/
 prompt.optimized.txt
 __pycache__/
 .pytest_cache/
+.env
+prompt.*.txt

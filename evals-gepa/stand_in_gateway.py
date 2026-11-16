@@ -3,18 +3,21 @@ No model runs here. Use it to try the whole flow without a token or any cost.
 
     uv run python stand_in_gateway.py                 # serves http://127.0.0.1:8765/v1, token "stand-in-token"
     uv run python stand_in_gateway.py --fail-once     # the first chat call returns 502
+    uv run python stand_in_gateway.py --no-luna       # a key that may not use gpt-6-luna (403)
 
 Then, in a second terminal: COURSE_GATEWAY_URL=http://127.0.0.1:8765/v1 and KB_MCP_TOKEN=stand-in-token.
 
-What it does, like the real gateway: checks the bearer token (401), allows only the course models (403), answers
-GET /v1/models and POST /v1/chat/completions with a usage block.
+What it does, like the real gateway: checks the bearer token (401), allows only the models of this key (403; the
+default key may use all course models, gpt-6-luna included; `--no-luna` makes a key without it), refuses
+temperature 0 for a GPT model with a 400 as the provider does, answers GET /v1/models and POST /v1/chat/completions
+with a usage block.
 How the worker answers: it takes the reference SQL of the question from data/cases.jsonl and breaks it in a way
 you can name, unless the system prompt has a rule that prevents that failure:
   - credit-card questions use payment code 2 (cash) unless the prompt says that 1 is credit card
   - percentage questions return a fraction unless the prompt says to multiply by 100
   - about one question in three gets a sentence after the query unless the prompt says to reply with SQL only
   - "or later in the day" questions use > where >= is right (no rule fixes this one)
-The reflection model adds one rule for each failure it reads about in GEPA's feedback, and answers in the
+The reflection model (any model, when the request is GEPA's reflection prompt) adds one rule for each failure it reads about in GEPA's feedback, and answers in the
 JSON format dspy.GEPA asks for."""
 
 from __future__ import annotations
@@ -29,8 +32,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 TOKEN = "stand-in-token"
-MODELS = ["qwen3.6-35b-a3b", "qwen3.8-27b", "qwen3-embedding-0.6b"]
-REFLECTOR = "qwen3.8-27b"
+MODELS = ["qwen3.6-35b-a3b", "qwen3.8-27b", "gpt-6-luna", "qwen3-embedding-0.6b"]
+REFLECTORS = ("qwen3.8-27b", "gpt-6-luna")
 
 RULES = {
     "code": "payment_type codes: 1 = credit card, 2 = cash, 3 = no charge, 4 = dispute.",
@@ -107,7 +110,7 @@ class Handler(BaseHTTPRequestHandler):
         if not self._auth():
             return
         if self.path.rstrip("/").endswith("/models"):
-            return self._send(200, {"object": "list", "data": [{"id": m, "object": "model"} for m in MODELS]})
+            return self._send(200, {"object": "list", "data": [{"id": m, "object": "model"} for m in self.server.models]})
         self._send(404, {"error": {"message": "not found"}})
 
     def do_POST(self):
@@ -118,8 +121,13 @@ class Handler(BaseHTTPRequestHandler):
         if not self.path.rstrip("/").endswith("/chat/completions"):
             return self._send(404, {"error": {"message": "not found"}})
         model = body.get("model", "")
-        if model not in MODELS:
+        if model not in self.server.models:
             return self._send(403, {"error": {"message": f"model {model} is not allowed for this key"}})
+        if model.startswith("gpt-") and body.get("temperature") == 0:
+            return self._send(400, {"error": {"message": "Unsupported value: 'temperature' does not support 0 with this "
+                                              "model. Only the default (1) value is supported.",
+                                              "type": "invalid_request_error", "param": "temperature",
+                                              "code": "unsupported_value"}})
         with self.server.lock:
             self.server.chat_calls += 1
             if self.server.fail_502 > 0:
@@ -128,10 +136,14 @@ class Handler(BaseHTTPRequestHandler):
         msgs = body.get("messages", [])
         system = "\n".join(str(m.get("content", "")) for m in msgs if m.get("role") == "system")
         user = next((str(m.get("content", "")) for m in reversed(msgs) if m.get("role") == "user"), "")
-        if os.environ.get("STAND_IN_DUMP") and model == REFLECTOR:
+        reflect = model in REFLECTORS or "[[ ## current_instruction ## ]]" in user
+        with self.server.lock:
+            self.server.calls_by_model[model] = self.server.calls_by_model.get(model, 0) + 1
+            self.server.requests.append({k: v for k, v in body.items() if k != "messages"})
+        if os.environ.get("STAND_IN_DUMP") and reflect:
             with open(os.environ["STAND_IN_DUMP"], "a", encoding="utf-8") as f:
                 f.write(json.dumps(msgs) + "\n")
-        text = reflection_reply(user) if model == REFLECTOR else worker_reply(system, user)
+        text = reflection_reply(user) if reflect else worker_reply(system, user)
         t_in = sum(len(str(m.get("content", ""))) for m in msgs) // 4 + 5
         t_out = len(text) // 4 + 1
         self._send(200, {"id": "standin", "object": "chat.completion", "created": 0, "model": model,
@@ -140,10 +152,13 @@ class Handler(BaseHTTPRequestHandler):
                          "usage": {"prompt_tokens": t_in, "completion_tokens": t_out, "total_tokens": t_in + t_out}})
 
 
-def serve(port: int = 8765, fail_502: int = 0, token: str = TOKEN) -> ThreadingHTTPServer:
-    """Starts the server in a background thread and returns it (call .shutdown() to stop)."""
+def serve(port: int = 8765, fail_502: int = 0, token: str = TOKEN, models: list[str] | None = None) -> ThreadingHTTPServer:
+    """Starts the server in a background thread and returns it (call .shutdown() to stop).
+    `models`: the models this key may use (default MODELS). `calls_by_model` and `requests` record each chat call."""
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     srv.token, srv.fail_502, srv.chat_calls, srv.lock = token, fail_502, 0, threading.Lock()
+    srv.models = list(MODELS if models is None else models)
+    srv.calls_by_model, srv.requests = {}, []
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     return srv
 
@@ -152,8 +167,9 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--fail-once", action="store_true", help="the first chat call returns 502")
+    ap.add_argument("--no-luna", action="store_true", help="a key that may not use gpt-6-luna")
     a = ap.parse_args()
-    srv = serve(a.port, 1 if a.fail_once else 0)
+    srv = serve(a.port, 1 if a.fail_once else 0, models=[m for m in MODELS if not (a.no_luna and m == "gpt-6-luna")])
     print(f"stand-in gateway on http://127.0.0.1:{a.port}/v1  token: {TOKEN}  (Ctrl+C to stop)")
     try:
         threading.Event().wait()

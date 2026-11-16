@@ -24,6 +24,9 @@ FEEDBACK_CHARS = 700            # one case in the reflection prompt: question, r
 
 
 def estimate(prompt_text: str | None = None) -> dict:
+    """Upper bounds for the models chosen now (TASK_MODEL, GEPA_REFLECTOR). A model outside the course price list
+    counts as 0 CAD; `unknown` lists those models."""
+    worker, refl = gateway.task_model(), gateway.reflector()
     prompt_text = prompt_text or (HERE / "prompt.txt").read_text(encoding="utf-8")
     n = {s: len(scoring.cases(s)) for s in ("train", "val", "test")}
     p_chars = 2 * len(prompt_text) + 200     # the prompt may double in length during GEPA
@@ -35,10 +38,10 @@ def estimate(prompt_text: str | None = None) -> dict:
     reflections = math.floor((gepa_worker - n["val"]) / (2 * MINIBATCH))
     calls = dict(check=1, eval_before=n["test"], gepa_worker=gepa_worker, gepa_reflect=reflections,
                  eval_after=n["test"])
-    cost = dict(check=gateway.cad(gateway.WORKER, 40, 200),
-                eval_before=n["test"] * gateway.cad(gateway.WORKER, w_in, gateway.WORKER_MAX_TOKENS),
-                gepa_worker=gepa_worker * gateway.cad(gateway.WORKER, w_in, gateway.WORKER_MAX_TOKENS),
-                gepa_reflect=reflections * gateway.cad(gateway.REFLECTOR, r_in, gateway.REFLECTOR_MAX_TOKENS))
+    cost = dict(check=gateway.cad(worker, 40, 200),
+                eval_before=n["test"] * gateway.cad(worker, w_in, gateway.WORKER_MAX_TOKENS),
+                gepa_worker=gepa_worker * gateway.cad(worker, w_in, gateway.WORKER_MAX_TOKENS),
+                gepa_reflect=reflections * gateway.cad(refl, r_in, gateway.REFLECTOR_MAX_TOKENS))
     cost["eval_after"] = cost["eval_before"]
     # Slowest GEPA: i iterations, k of them better on the minibatch (those add a val pass); worker calls bound it.
     wave = lambda k: math.ceil(k / gateway.CONCURRENCY) * WORKER_S  # noqa: E731
@@ -47,12 +50,17 @@ def estimate(prompt_text: str | None = None) -> dict:
                  if n["val"] + 2 * MINIBATCH * i + n["val"] * k <= gepa_worker)
     secs = WORKER_S + 2 * wave(n["test"]) + gepa_s
     return dict(cases=n, calls=calls, total_calls=sum(calls.values()), cost_cad=cost,
-                total_cad=sum(cost.values()), worst_seconds=secs, tokens=dict(worker_in=w_in, reflect_in=r_in))
+                total_cad=sum(cost.values()), worst_seconds=secs, tokens=dict(worker_in=w_in, reflect_in=r_in),
+                models=dict(task=worker, reflect=refl),
+                unknown=[m for m in dict.fromkeys((worker, refl)) if not gateway.price_known(m)])
 
 
 def print_estimate(e: dict | None = None) -> dict:
     e = e or estimate()
     print("Estimate for one whole run (check, eval, GEPA, eval again), before any call is made:")
+    print(f"  models: task {e['models']['task']}, reflection {e['models']['reflect']}")
+    for m in e["unknown"]:
+        print(f"  cost unknown for {m}: not a course gateway price; its calls count as 0 CAD below")
     print(f"  cases: train {e['cases']['train']}, val {e['cases']['val']}, test (held out) {e['cases']['test']}")
     for k, v in e["calls"].items():
         print(f"  {k:<13} at most {v:>3} calls, at most {e['cost_cad'].get(k, 0):.4f} CAD")
