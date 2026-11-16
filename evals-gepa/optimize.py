@@ -206,6 +206,7 @@ def main(argv: list[str] | None = None) -> int:
         d = result.detailed_results
         scores = [round(s, 3) for s in d.val_aggregate_scores]
         summary = f"candidates {len(scores)}; val scores {scores}; best {d.best_idx}"
+        _write_candidates(a.out, d, scores)
     else:
         best = best_seen.best[1] or seed_prompt
         summary = f"stopped by the cost meter; best val score seen {best_seen.best[0]:.3f}"
@@ -221,6 +222,18 @@ def main(argv: list[str] | None = None) -> int:
         f.write("\n".join(lines) + "\n\n")
     print("\n".join(lines[1:]))
     return 3 if stopped else 0
+
+
+def _write_candidates(out: str, d, scores: list) -> None:
+    """Every prompt GEPA tried, in order, with its val score, to logs/gepa-candidates.md. Candidate 0 is prompt.txt."""
+    (HERE / "logs").mkdir(exist_ok=True)
+    parts = [f"# GEPA candidates ({time.strftime('%Y-%m-%d %H:%M:%S')}, written to {out})", ""]
+    for i, cand in enumerate(d.candidates):
+        text = cand.predict.signature.instructions if hasattr(cand, "predict") else str(cand)
+        mark = " (chosen)" if i == d.best_idx else (" (your starting prompt)" if i == 0 else "")
+        parts += [f"## Candidate {i}{mark}: val score {scores[i]}", "", "```text", text, "```", ""]
+    (HERE / "logs" / "gepa-candidates.md").write_text("\n".join(parts), encoding="utf-8")
+    print("every candidate prompt and its val score: logs/gepa-candidates.md")
 
 
 if __name__ == "__main__":

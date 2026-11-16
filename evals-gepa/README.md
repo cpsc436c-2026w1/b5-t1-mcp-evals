@@ -252,6 +252,9 @@ failure names. Do you expect the new prompt to state, in its own words, a rule y
    see `prompt.optimized.txt` next to [`prompt.txt`](prompt.txt).
 
    The cost meter in [`optimize.py`](optimize.py) stops GEPA before any call that could take it past 0.05 CAD.
+3. In your editor, open `logs/gepa-candidates.md`. You should see every prompt GEPA tried, in order, each with its
+   val score: candidate 0 is your starting prompt, and the one GEPA picked is marked "(chosen)". Compare candidate 0
+   with the chosen one: which lines did GEPA add?
 
 <details>
 <summary>Check your predictions</summary>

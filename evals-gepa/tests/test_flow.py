@@ -20,6 +20,8 @@ def test_optimize_writes_a_prompt_and_after_is_at_least_before(stand_in, tmp_pat
     out = tmp_path / "prompt.optimized.txt"
     assert optimize.main(["--max-metric-calls", "12", "--out", str(out)]) == 0
     assert out.exists() and out.read_text().strip()
+    cands = (Path(optimize.HERE) / "logs" / "gepa-candidates.md").read_text()
+    assert "Candidate 0 (your starting prompt)" in cands and "(chosen)" in cands
     before = inspect_eval(sql_cases(split="test", prompt="prompt.txt"), log_dir=str(tmp_path), display="none")[0]
     after = inspect_eval(sql_cases(split="test", prompt=str(out)), log_dir=str(tmp_path), display="none")[0]
     assert score(after) >= score(before)
