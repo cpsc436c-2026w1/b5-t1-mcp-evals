@@ -1,7 +1,14 @@
 # B5T1 part A: connect to the course MCP server
 
-In this part of the tutorial, you connect your coding assistant to the course MCP server. You test
-its tools and use the course files to check claims in your project proposal.
+**Goal.** When you ask your coding assistant about course material, or ask it to check your project proposal, the
+answer should come from the course's own files, and you should be able to open the file an answer came from and see
+that it says what the assistant claims. Without help, an assistant answers from what its model remembers, and you
+cannot check where a statement came from.
+
+**How MCP helps.** The course MCP server gives your assistant two tools on the course files: `query_kb` searches
+them and returns passages with their file paths, and `get_kb_doc` opens one whole file by its path. In this part you
+connect the server (Step 1), get answers that cite course files (Step 2), open the file behind an answer to check it
+(Step 3), and check the numbers and AWS claims in your proposal against the course files and the AWS docs (Step 4).
 
 L17 introduced MCP (Model Context Protocol), a standard way for an AI app to use tools, data and prompt templates
 offered by another program. The course server searches lecture decks, tutorials and readings, and returns passages
@@ -202,34 +209,50 @@ The coding assistant runs the call and sends the tool result back, so the model 
 its reply.
 </details>
 
-### Step 3: check a file path
+### Step 3: open the file behind an answer
 
 <details>
 <summary>What happens when you do this step</summary>
 
 ```text
 assistant  --get_kb_doc(path)-->  course MCP server
-           <--document or error--  course MCP server
+           <--the whole file, or nothing--
 ```
 
-`get_kb_doc` requests one course file by its path.
+An answer is only as good as its source. In Step 2 the assistant named a course file; here you open that file
+through the server and check that it says what the assistant claimed. A path the server does not have returns
+nothing, so a file you can open is one that really exists in the course files.
 
 </details>
 
-1. In your notes, pick a file path the assistant named in Step 2. **Predict:** what will `get_kb_doc` return for
-   that path, and what will it return for a path the assistant made up?
-2. In your assistant's chat, ask: "Call get_kb_doc on that file path and show me its first three lines." You should
-   see the document in the chat if the path is real.
-3. Make up a different course file path and ask the assistant in the chat to call `get_kb_doc` on it. You should see
-   an error or a tool result that does not return a file in the chat. If the path happens to be real, make up another
-   and try again in the chat.
+1. In your notes, copy one file path and one sentence the assistant quoted or paraphrased from it in Step 2.
+2. **Predict:** in your notes, write down whether you expect that file to contain the sentence, and what you expect
+   the tool to return for a path that does not exist.
+3. In your assistant's chat, ask (put in your path):
+
+   ```text
+   Use get_kb_doc to open <the path from Step 2>.
+   Show me the paragraph that contains the sentence you quoted.
+   ```
+
+   You should see a `get_kb_doc` tool call and a paragraph from that file in the chat.
+4. In your notes, mark whether the file says what the assistant claimed in Step 2.
+5. In your assistant's chat, ask:
+
+   ```text
+   Use get_kb_doc to open 436c-student/facts-made-up.md.
+   Tell me exactly what the tool returned.
+   ```
+
+   You should see the tool call return nothing: no file and no text.
 
 <details>
 <summary>Check your predictions</summary>
 
-The real path should return the document named by that path. The invented path should not return a file. L17's
-server exposes `get_kb_doc` as a tool that the assistant can call, so you can check a cited path against the
-server instead of accepting the path from a reply alone.
+The real path returns the whole file, and the paragraph you asked for is in it. If the assistant's sentence is not
+in the file, the assistant added it: check claims against the file, not against the reply. The made-up path returns
+nothing, because the server only returns files it has. L17's MCP server exposes `get_kb_doc` as a tool, so you can
+check a cited path yourself instead of trusting the reply.
 </details>
 
 ### Step 4: check your project proposal
