@@ -266,6 +266,23 @@ pattern uses feedback to propose revisions and a limit to stop attempts. A promp
 without guaranteeing a better held-out score.
 </details>
 
+<details>
+<summary>Use GEPA in your own project</summary>
+
+[`gepa_minimal.py`](gepa_minimal.py) is the same method in about 30 lines, without the course's cost limits and
+logs. To use it for your own task, change the four places marked `YOUR TASK`: the input and output fields with the
+starting instructions, the scorer, and the cases. Keep two things: a metric that returns feedback saying what went
+wrong (GEPA learns from that text, not only from the score), and room for the reflection model's reply
+(`max_tokens`), because a thinking model spends tokens on reasoning before it answers.
+
+```bash
+uv run python gepa_minimal.py
+```
+
+You should see GEPA's progress lines and, at the end, the new prompt; it is also written to `prompt.minimal.txt`.
+
+</details>
+
 ### Step 4: read the new prompt
 
 <details>
@@ -720,6 +737,7 @@ terminal and set only your token. `uv run pytest -q` runs the tests against the 
 | [`tutorial.ipynb`](tutorial.ipynb) | The same steps as notebook cells. |
 | [`prompt.txt`](prompt.txt) | The starting prompt. |
 | [`questions.py`](questions.py) | Prints the held-out questions only. |
+| [`gepa_minimal.py`](gepa_minimal.py) | GEPA in about 30 lines, to reuse in your own project. |
 | [`data/cases.jsonl`](data/cases.jsonl), [`data/trips.csv`](data/trips.csv) | The cases with their splits and the table they ask about; `data/build.py` writes both. |
 | [`data/build.py`](data/build.py) | The script that makes the data and cases. |
 | [`task.py`](task.py) | The Inspect task: one split and the prompt from a file, scored by `scoring.py`. |
