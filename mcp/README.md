@@ -26,14 +26,16 @@ with their file paths. Your coding assistant is the host app: it runs tool calls
 tool results.
 
 > ⚠️ **Where commands run.** In a terminal on your laptop, use the tutorial repo's `mcp` folder for the check.
-> In a terminal on your laptop, use your team repo root to copy `.mcp.json.example`, run `git status`, and start Claude Code.
+> In a terminal on your laptop, use your team repo root to copy the example configuration, run `git status`, and
+> start Claude Code or the Kiro CLI.
 > In your assistant's chat, enter the test questions and the proposal prompt.
 
 ## 1. Before you start
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if you have not already.
 2. Clone your team repository. Check that it contains `docs/proposal.md` and `.mcp.json.example`.
-3. Have Claude Code or Kiro available on your laptop.
+3. Install Claude Code, the Kiro IDE or the Kiro CLI on your laptop and sign in to it, as in
+   [before the tutorial](../README.md#before-the-tutorial).
 4. Open your team repository on GitHub and find the issue "Your course MCP tokens". Copy the token next to your
    name. The token is yours only. Keep it out of team-repo files, commits and chats; section 2 shows the one local setting
    that holds it.
@@ -97,14 +99,14 @@ The first run downloads Python packages. On success, you should see:
 ```text
 ✓ KB_MCP_TOKEN is set
 ✓ connected to https://kb-cloud-students.fly.dev/mcp
-✓ tools: get_kb_doc, list_kb_topics, query_kb
+✓ tools: cpsc436c_list, ..., cpsc436c_search, ..., get_kb_doc, list_kb_topics, query_kb
 ✓ query_kb("S3 storage classes") first result: <a course file path>
   | <first line of that file>
   | <second line of that file>
 OK: your token works and the course MCP server answered.
 ```
 
-The path and file lines depend on the search result. If a line in the terminal starts with `FAILED:`, read its fix
+The tool list is longer than shown here, and the path and file lines depend on the search result. If a line in the terminal starts with `FAILED:`, read its fix
 in the list below:
 
 - `KB_MCP_TOKEN is not set`: set the token again in the same terminal.
@@ -137,9 +139,10 @@ each server for its list of tools.
 
 </details>
 
-1. In your editor, open `.mcp.json.example` at the root of your team repository, the folder containing `docs/` and
-   `.mcp.json.example`. Read the file: it names the servers your assistant will connect to and reads the token from
-   `KB_MCP_TOKEN`. Do not edit the file.
+1. In your editor, open the example configuration for your assistant at the root of your team repository, the
+   folder containing `docs/`: `.mcp.json.example` for Claude Code, `.kiro/settings/mcp.json.example` for Kiro.
+   Read the file: it names the servers your assistant will connect to and reads the token from `KB_MCP_TOKEN`. Do
+   not edit the file.
 2. **Predict:** In your notes, write down which servers you expect your assistant to list as connected. What do
    you expect the list to show for `436c` if the assistant starts in a window where the token is not set?
 3. In a terminal on your laptop, go to the root of your team repository. Copy the example for your assistant with
@@ -148,10 +151,12 @@ each server for its list of tools.
    | Assistant | macOS or Linux | Windows PowerShell |
    |---|---|---|
    | Claude Code | `cp .mcp.json.example .mcp.json` | `Copy-Item .mcp.json.example .mcp.json` |
-   | Kiro | `mkdir -p .kiro/settings && cp .mcp.json.example .kiro/settings/mcp.json` | `New-Item -ItemType Directory -Force .kiro\settings; Copy-Item .mcp.json.example .kiro\settings\mcp.json` |
+   | Kiro IDE or Kiro CLI | `cp .kiro/settings/mcp.json.example .kiro/settings/mcp.json` | `Copy-Item .kiro\settings\mcp.json.example .kiro\settings\mcp.json` |
 
    You should see the command finish without an error in the terminal, and the copied file in your editor's file
-   list of the team repo. If your team repo has no `.mcp.json.example`, ask a TA. Do not write one from memory.
+   list of the team repo. Kiro reads `.kiro/settings/mcp.json` in the workspace, or `~/.kiro/settings/mcp.json` for
+   all your folders ([Kiro MCP configuration](https://kiro.dev/docs/mcp/configuration/#configuration-locations)). If
+   your team repo has no example file for your assistant, ask a TA. Do not write one from memory.
 
 4. In the terminal at your team repo root, run `git status`. You should see that neither `.mcp.json` nor
    `.kiro/settings/mcp.json` appears in the terminal output; both must stay on your laptop. If either appears,
@@ -160,16 +165,45 @@ each server for its list of tools.
 
    - **Claude Code:** in the terminal where you set the token, at the team repo root, run `claude`. Approve the
      servers in `.mcp.json` when asked.
-   - **Kiro:** make the token permanent (section 2). Quit Kiro fully. Open Kiro again on the team repo root.
+   - **Kiro IDE:**
+     1. Make the token permanent, as section 2 shows.
+     2. Quit Kiro fully.
+     3. Open Kiro and open your team repository folder.
+     4. If Kiro asks whether you trust the folder, trust it. Kiro does not load a folder's MCP configuration until
+        you do ([Kiro workspace trust](https://kiro.dev/docs/permissions/#workspace-trust)).
+     5. If Kiro warns that `KB_MCP_TOKEN` is not approved, open Settings (`Cmd + ,` on macOS, `Ctrl + ,` on
+        Windows), search for **Mcp Approved Env Vars** and add `KB_MCP_TOKEN`. Kiro expands only approved variables
+        ([Kiro environment variables](https://kiro.dev/docs/mcp/configuration/#environment-variables)).
 
-6. Check the connection. In Claude Code, type `/mcp`. In Kiro, open the MCP servers view in the Kiro panel. You
-   should see `436c` and `aws-knowledge` with connected status. If `436c` is missing or failed, do not edit
-   `.mcp.json`; ask a TA.
+     If `436c` then fails in step 6, Kiro may not see the token: ask a TA. Do not put the token in the configuration
+     file.
+   - **Kiro CLI:** in the terminal where you set the token, at the team repo root, run `kiro-cli chat`. On the
+     **Trust this workspace?** screen, choose **Trust, continue**: until you do, the Kiro CLI does not load the
+     folder's MCP configuration ([trust a workspace in Kiro CLI](https://kiro.dev/docs/permissions/#trust-a-workspace-in-kiro-cli)).
+     The Kiro CLI does not read a `.env` file; the token must be set in this terminal.
+
+6. Check the connection in your assistant. Each one shows it in a different place:
+
+   - **Claude Code:** in the chat, type `/mcp`. You should see `436c` and `aws-knowledge`, each with a connected
+     status and its number of tools ([Claude Code MCP](https://code.claude.com/docs/en/mcp)).
+   - **Kiro IDE:** select the Kiro icon in the activity bar on the left to open the Kiro panel, and find its
+     **MCP Servers** section. You should see `436c` and `aws-knowledge`, each with its connection status. The
+     panel's Output tab, with **Kiro - MCP Logs** chosen in the dropdown, shows why a server failed
+     ([Kiro MCP](https://kiro.dev/docs/mcp/#troubleshooting)). If the panel has no MCP Servers section, open
+     Settings, search for "MCP" and turn on MCP support
+     ([Kiro MCP configuration](https://kiro.dev/docs/mcp/configuration/#configuration-locations), IDE tab).
+   - **Kiro CLI:** the CLI has no server panel. In the chat, type `/mcp`. You should see `436c` and
+     `aws-knowledge` listed with their connection status and tools
+     ([Kiro slash commands](https://kiro.dev/docs/reference/slash-commands/#mcp)). In another terminal at
+     your team repo root, `kiro-cli mcp list` lists the servers in your configuration files; it reads the files and
+     does not show whether a server is connected ([Kiro CLI commands](https://kiro.dev/docs/reference/cli-commands/#kiro-cli-mcp-list)).
+
+   If `436c` is missing or failed, do not edit the configuration file; ask a TA.
 
 <details>
 <summary>Check your predictions</summary>
 
-The server view shows both `436c` and `aws-knowledge` connected. Without the token, `436c` shows as failed, because
+The server list shows both `436c` and `aws-knowledge` connected. Without the token, `436c` shows as failed, because
 the server refuses a call that does not carry a token. L17 described a host app running one MCP
 client per server: the configuration tells your assistant which servers to connect to, and each permitted client
 can list and call the server's tools.
@@ -202,8 +236,8 @@ files and returns file paths and passages, and the assistant writes its reply fr
    > Using only the course MCP, how does AWS Lambda bill a function, and what do you pay between calls? Name the course file you used.
 
    You should see a reply to each question in the chat.
-3. Look for the tool call in the chat. Claude Code shows `436c - query_kb (MCP)` with the query it sent. Kiro shows
-   the tool name and asks you to allow it. You should see replies that name course knowledge base files and quote or paraphrase
+3. If Kiro asks to run a tool, select **Approve** in the IDE, or press `y` in the CLI. Look for the tool call in
+   the chat. Claude Code shows `436c - query_kb (MCP)` with the query it sent; Kiro shows the tool name. You should see replies that name course knowledge base files and quote or paraphrase
    their passages.
 4. If you do not see a tool call in the chat, the assistant answered from memory. Ask again in the chat: "Use the
    query_kb tool and show me the file paths it returned." You should see a tool call and the returned file paths
@@ -343,7 +377,36 @@ your review. L17 recommends MCP tool calls with audit logs. The course server lo
 key.
 </details>
 
-## 4. Extra exercises
+## 4. Ask the course server
+
+The course server also answers questions about the project's limits and course material. These questions do not
+ask your assistant to read your team's files. Keep using the assistant you connected in Step 1, and ask each
+question separately in its chat. The wording of the replies changes from run to
+run; compare each reply with the list under it.
+
+1. > What is our AWS budget for the term, and how much can we spend on model calls now? Check with the course server.
+
+   A good reply has a course server tool call and says: 30 USD per group lease for the term; about 5 USD of model
+   calls per team for now, more on request for production use. It names the course page for each number.
+2. > Which models can our app call through the course LLM gateway, and what is the most output tokens one request may ask for? Check with the course server.
+
+   A good reply has a course server tool call and names `qwen3.8-27b` and `qwen3.6-35b-a3b` for chat and
+   `qwen3-embedding-0.6b` for embeddings, and 16,384 output tokens for one request. It may add the request limit:
+   120 requests a minute per key.
+3. > We're thinking of adding retrieval (RAG) to our app. What should we check or read before we decide? Check with the course server.
+
+   A good reply has a course server tool call and names the course readings on retrieval (the generative AI group in `436c-student/readings.md`), the
+   course code you can reuse (`436c-student/code-to-reuse.md`), and the course LLM gateway's limits that retrieval
+   runs into, such as the embedding model and the request rate.
+4. > What can the course server do for us? List what's available now and what comes later. Check with the course server.
+
+   A good reply has a course server tool call and lists the course server's tools and what each is for, the current milestone, and the course
+   checks that are open now and those that open at a later milestone.
+
+If a reply has no tool call, the assistant answered from memory. Ask again: "Check with the course server and show
+me the tool result you used."
+
+## 5. Extra exercises
 
 1. **Predict:** In your notes, write down whether you expect the assistant to call a tool if you ask the Parquet
    question from Step 2 without the words "Using only the course MCP".
@@ -357,7 +420,7 @@ Compare the tool call lines in both chats. The assistant may answer from memory 
 message does not ask it to use the course MCP. A file citation is easier to check when a tool result supplies it.
 </details>
 
-## 5. Clean up
+## 6. Clean up
 
 Keep `.mcp.json`: the project uses it. The project uses your token until the end of term.
 
@@ -365,7 +428,7 @@ If you set a permanent token and later no longer want it, you can remove the per
 previously added a token line to a shell startup file, remove that line. On Windows, remove the `KB_MCP_TOKEN` user
 environment variable in your environment settings.
 
-## 6. Recap and reflection
+## 7. Recap and reflection
 
 <details>
 <summary>What you did, why, and how the same work runs outside the tutorial (open after the tutorial)</summary>
