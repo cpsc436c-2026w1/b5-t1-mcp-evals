@@ -304,6 +304,19 @@ check a cited path yourself instead of trusting the reply.
 
 ### Step 4: ask the course server
 
+<details>
+<summary>What happens when you do this step</summary>
+
+**Goal:** You ask about the project's limits and readings, and check each reply against the list under its question. A reply with a course server tool call took its numbers from the course; a reply without one answered from memory.
+
+```text
+your question  -->  assistant  --tool call-->  course MCP server
+                               <--course page--
+               <--  reply that names the page
+```
+
+</details>
+
 The course server also answers questions about the project's limits and course material. These questions do not
 ask your assistant to read your team's files. Keep using the assistant you connected in Step 1, and ask each
 question separately in its chat. The wording of the replies changes from run to
