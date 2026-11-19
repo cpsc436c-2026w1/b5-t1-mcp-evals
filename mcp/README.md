@@ -14,8 +14,9 @@ and `list_kb_topics` lists what the knowledge base covers. MCP is how the assist
 connects, the server sends the list of tools with a description of each, and the assistant decides when to call
 one. Your team repo's `AGENTS.md` adds the rule for when: before stating a number or a rule about AWS, Spark or
 file formats, search the course server first. In this part you connect the server (Step 1), get answers that cite
-the course knowledge base (Step 2), open the document behind an answer to check it (Step 3), and check the numbers
-and AWS claims in your proposal against the course knowledge base and the AWS docs (Step 4).
+the course knowledge base (Step 2), open the document behind an answer to check it (Step 3), ask the course server about the project's limits
+and readings (Step 4), and, optionally, check the numbers and AWS claims in your proposal against the course
+knowledge base and the AWS docs (Step 5).
 
 To see these calls in code, read [`mcp_minimal.py`](mcp_minimal.py): about 20 lines that connect, list the tools,
 search and open a document, the same calls your assistant makes.
@@ -301,7 +302,38 @@ nothing, because the server only returns files it has. L17's MCP server exposes 
 check a cited path yourself instead of trusting the reply.
 </details>
 
-### Step 4: check your project proposal
+### Step 4: ask the course server
+
+The course server also answers questions about the project's limits and course material. These questions do not
+ask your assistant to read your team's files. Keep using the assistant you connected in Step 1, and ask each
+question separately in its chat. The wording of the replies changes from run to
+run; compare each reply with the list under it.
+
+1. > What is our AWS budget for the term, and how much can we spend on model calls now? Check with the course server.
+
+   A good reply has a course server tool call and says: 30 USD per group lease for the term; about 5 USD of model
+   calls per team for now, more on request for production use. It names the course page for each number.
+2. > Which models can our app call through the course LLM gateway, and what is the most output tokens one request may ask for? Check with the course server.
+
+   A good reply has a course server tool call and names `qwen3.8-27b` and `qwen3.6-35b-a3b` for chat and
+   `qwen3-embedding-0.6b` for embeddings, and 16,384 output tokens for one request. It may add the request limit:
+   120 requests a minute per key.
+3. > We're thinking of adding retrieval (RAG) to our app. What should we check or read before we decide? Check with the course server.
+
+   A good reply has a course server tool call and names the course readings on retrieval (the generative AI group in `436c-student/readings.md`), the
+   course code you can reuse (`436c-student/code-to-reuse.md`), and the course LLM gateway's limits that retrieval
+   runs into, such as the embedding model and the request rate.
+4. > What can the course server do for us? List what's available now and what comes later. Check with the course server.
+
+   A good reply has a course server tool call and lists the course server's tools and what each is for, the current milestone, and the course
+   checks that are open now and those that open at a later milestone.
+
+If a reply has no tool call, the assistant answered from memory. Ask again: "Check with the course server and show
+me the tool result you used."
+
+### Step 5 (optional): check your project proposal
+
+Optional in the tutorial. Do it in your own team repository: it reads your `docs/proposal.md`.
 
 <details>
 <summary>What happens when you do this step</summary>
@@ -377,36 +409,7 @@ your review. L17 recommends MCP tool calls with audit logs. The course server lo
 key.
 </details>
 
-## 4. Ask the course server
-
-The course server also answers questions about the project's limits and course material. These questions do not
-ask your assistant to read your team's files. Keep using the assistant you connected in Step 1, and ask each
-question separately in its chat. The wording of the replies changes from run to
-run; compare each reply with the list under it.
-
-1. > What is our AWS budget for the term, and how much can we spend on model calls now? Check with the course server.
-
-   A good reply has a course server tool call and says: 30 USD per group lease for the term; about 5 USD of model
-   calls per team for now, more on request for production use. It names the course page for each number.
-2. > Which models can our app call through the course LLM gateway, and what is the most output tokens one request may ask for? Check with the course server.
-
-   A good reply has a course server tool call and names `qwen3.8-27b` and `qwen3.6-35b-a3b` for chat and
-   `qwen3-embedding-0.6b` for embeddings, and 16,384 output tokens for one request. It may add the request limit:
-   120 requests a minute per key.
-3. > We're thinking of adding retrieval (RAG) to our app. What should we check or read before we decide? Check with the course server.
-
-   A good reply has a course server tool call and names the course readings on retrieval (the generative AI group in `436c-student/readings.md`), the
-   course code you can reuse (`436c-student/code-to-reuse.md`), and the course LLM gateway's limits that retrieval
-   runs into, such as the embedding model and the request rate.
-4. > What can the course server do for us? List what's available now and what comes later. Check with the course server.
-
-   A good reply has a course server tool call and lists the course server's tools and what each is for, the current milestone, and the course
-   checks that are open now and those that open at a later milestone.
-
-If a reply has no tool call, the assistant answered from memory. Ask again: "Check with the course server and show
-me the tool result you used."
-
-## 5. Extra exercises
+## 4. Extra exercises
 
 1. **Predict:** In your notes, write down whether you expect the assistant to call a tool if you ask the Parquet
    question from Step 2 without the words "Using only the course MCP".
@@ -420,7 +423,7 @@ Compare the tool call lines in both chats. The assistant may answer from memory 
 message does not ask it to use the course MCP. A file citation is easier to check when a tool result supplies it.
 </details>
 
-## 6. Clean up
+## 5. Clean up
 
 Keep `.mcp.json`: the project uses it. The project uses your token until the end of term.
 
@@ -428,7 +431,7 @@ If you set a permanent token and later no longer want it, you can remove the per
 previously added a token line to a shell startup file, remove that line. On Windows, remove the `KB_MCP_TOKEN` user
 environment variable in your environment settings.
 
-## 7. Recap and reflection
+## 6. Recap and reflection
 
 <details>
 <summary>What you did, why, and how the same work runs outside the tutorial (open after the tutorial)</summary>
