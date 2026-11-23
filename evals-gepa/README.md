@@ -80,7 +80,7 @@ The notebook [`tutorial.ipynb`](tutorial.ipynb) has the same steps as cells; Sec
    You should see output like the following in the terminal. The reply, token counts and cost can vary.
 
    ```text
-   gateway: https://oay6tcpsuv4gn5mubtlj7rnbl40gmrlv.lambda-url.ca-central-1.on.aws/v1
+   gateway: https://co4zo6ssflbun6deagtswqresm0vrmyt.lambda-url.ca-central-1.on.aws/v1
    estimate: 1 call, at most 40 tokens in and 200 out, at most 0.000022 CAD
    ✓ KB_MCP_TOKEN is set
    ✓ models your key may use: qwen3-embedding-0.6b, qwen3.6-35b-a3b, qwen3.8-27b

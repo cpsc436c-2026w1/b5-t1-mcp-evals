@@ -39,7 +39,7 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
-DEFAULT_URL = "https://oay6tcpsuv4gn5mubtlj7rnbl40gmrlv.lambda-url.ca-central-1.on.aws/v1"
+DEFAULT_URL = "https://co4zo6ssflbun6deagtswqresm0vrmyt.lambda-url.ca-central-1.on.aws/v1"
 WORKER = "qwen3.6-35b-a3b"     # default task model: answers the cases (env TASK_MODEL)
 REFLECTOR = "qwen3.8-27b"      # default reflection model: reads failures, writes a new prompt (env GEPA_REFLECTOR)
 LUNA = "gpt-6-luna"            # the other course reflection model; a weekly number of calls per key
